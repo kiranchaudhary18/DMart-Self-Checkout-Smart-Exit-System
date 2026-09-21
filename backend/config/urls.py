@@ -25,10 +25,10 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     
-    # App Endpoints (Dummy for Phase 1)
-    path('api/auth/', dummy_api_view, {'app_name': 'Auth'}, name='auth_dummy'),
-    path('api/stores/', dummy_api_view, {'app_name': 'Stores'}, name='stores_dummy'),
-    path('api/products/', dummy_api_view, {'app_name': 'Products'}, name='products_dummy'),
+    # App Endpoints
+    path('api/auth/', include('apps.accounts.urls')),
+    path('api/stores/', include('apps.stores.urls')),
+    path('api/products/', include('apps.products.urls')),
     path('api/cart/', dummy_api_view, {'app_name': 'Cart'}, name='cart_dummy'),
     path('api/orders/', dummy_api_view, {'app_name': 'Orders'}, name='orders_dummy'),
     path('api/payments/', dummy_api_view, {'app_name': 'Payments'}, name='payments_dummy'),
