@@ -1,0 +1,13 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<p>Your Exit Verification for <strong>Order #{{ order.order_number }}</strong> was processed.</p>
+{% if is_allowed %}
+<p><strong>Status:</strong> Allowed</p>
+<p>You have successfully exited the store. Thank you for shopping with us!</p>
+{% else %}
+<p><strong>Status:</strong> Rejected</p>
+<p><strong>Reason:</strong> {{ reason|default:"Security verification failed. Please contact the staff." }}</p>
+<p>Please return to the security desk or customer service for assistance.</p>
+{% endif %}
+{% endblock %}

@@ -46,6 +46,13 @@ class ExitTokenService:
             status=ExitToken.TokenStatus.ACTIVE
         )
         
+        try:
+            from apps.notifications.services import send_exit_qr_ready
+            send_exit_qr_ready(order, exit_token)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Failed to send exit QR notification: {e}")
+        
         return exit_token, raw_token
 
     @staticmethod
@@ -293,6 +300,21 @@ class SuspiciousActivityService:
             description=description,
             metadata=metadata or {}
         )
+        
+        # Send security alert for HIGH or CRITICAL severity
+        from .models import SuspiciousActivity
+        if severity in [SuspiciousActivity.Severity.HIGH, SuspiciousActivity.Severity.CRITICAL]:
+            customer = user
+            if order and not customer:
+                customer = order.customer
+                
+            if customer and customer.role == 'CUSTOMER': # only email customers about their accounts
+                try:
+                    from apps.notifications.services import send_security_alert
+                    send_security_alert(customer, activity_type, order)
+                except Exception as e:
+                    import logging
+                    logging.getLogger(__name__).error(f"Failed to send security alert notification: {e}")
         
         # After creating, evaluate repeated failures
         SuspiciousActivityService.check_repeated_failures(user=user, ip_address=ip_address)

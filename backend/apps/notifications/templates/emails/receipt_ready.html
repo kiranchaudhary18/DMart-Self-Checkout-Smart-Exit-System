@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<p>Your receipt for <strong>Order #{{ order.order_number }}</strong> is now ready.</p>
+<p><strong>Receipt Number:</strong> {{ receipt.receipt_number }}</p>
+<p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+<p><strong>Date:</strong> {{ receipt.created_at|date:"M d, Y H:i" }}</p>
+<p>You can view and download the full receipt from the DMart app.</p>
+{% endblock %}

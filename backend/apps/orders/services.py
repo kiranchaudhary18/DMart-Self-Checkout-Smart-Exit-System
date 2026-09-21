@@ -30,4 +30,11 @@ class ReceiptService:
             receipt_number=receipt_number
         )
         
+        try:
+            from apps.notifications.services import send_receipt_ready
+            send_receipt_ready(order)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Failed to send receipt notification: {e}")
+        
         return receipt

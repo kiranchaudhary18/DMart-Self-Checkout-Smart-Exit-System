@@ -1,0 +1,8 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<p>Your Exit QR Code for <strong>Order #{{ order.order_number }}</strong> is now ready.</p>
+<p>Please open the DMart app to scan your Exit QR Code at the security gate.</p>
+<p><strong>Note:</strong> Your Exit QR Code is valid until {{ expires_at|date:"M d, Y H:i" }}.</p>
+<p>Have a safe journey!</p>
+{% endblock %}

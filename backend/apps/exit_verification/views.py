@@ -8,6 +8,7 @@ from apps.cart.views import IsCustomer
 from apps.orders.models import Order
 from .models import ExitToken
 from .services import ExitTokenService
+from apps.notifications.services import send_exit_result
 from .serializers import GenerateExitTokenSerializer
 
 class GenerateExitTokenView(views.APIView):
@@ -65,6 +66,8 @@ class ExitTokenDetailView(views.APIView):
             "is_valid": token.is_valid
         }
         
+        return Response(get_success_response("Token details retrieved.", response_data))
+
 from rest_framework.permissions import BasePermission
 from .services import ExitVerificationService
 from .models import ExitVerification
@@ -111,6 +114,12 @@ class VerifyExitTokenView(views.APIView):
             }, status=status.HTTP_403_FORBIDDEN)
         
         if record and record.result == ExitVerification.VerificationResult.ALLOWED:
+            try:
+                send_exit_result(record.order, True)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Failed to send exit allowed notification: {e}")
+                
             return Response({
                 "status": "allowed",
                 "message": msg,
@@ -118,6 +127,13 @@ class VerifyExitTokenView(views.APIView):
                 "verified_at": record.scanned_at
             }, status=status.HTTP_200_OK)
             
+        if record and record.order:
+            try:
+                send_exit_result(record.order, False, msg)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Failed to send exit rejected notification: {e}")
+                
         return Response({
             "status": "rejected",
             "reason": record.rejection_reason if record else "UNAUTHORIZED",

@@ -59,4 +59,11 @@ class LoyaltyService:
         account.lifetime_earned = account.lifetime_earned + points_to_award
         account.save()
         
+        try:
+            from apps.notifications.services import send_loyalty_notification
+            send_loyalty_notification(order.customer, order, points_to_award, balance_after)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Failed to send loyalty notification: {e}")
+            
         return trx

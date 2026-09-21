@@ -1,0 +1,7 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<p>Congratulations! You have earned <strong>{{ points }}</strong> Loyalty Points for your recent purchase (Order #{{ order.order_number }}).</p>
+<p><strong>Your new Loyalty Points balance is:</strong> {{ balance_after }}</p>
+<p>You can redeem these points on your future purchases at DMart.</p>
+{% endblock %}

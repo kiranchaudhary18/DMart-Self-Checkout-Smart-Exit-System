@@ -16,6 +16,7 @@ from .serializers import (
     VerifyPaymentRequestSerializer
 )
 from apps.loyalty.services import LoyaltyService
+from apps.notifications.services import send_payment_success, send_order_confirmation
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +142,13 @@ class VerifyPaymentView(views.APIView):
                 logger.error(f"Failed to award loyalty points for order {order.order_number}: {str(e)}")
             
             # (Inventory deduction & Coupon logic happens in a later phase, or async task)
+            
+        # Send notifications outside atomic block to ensure failure isolation
+        try:
+            send_payment_success(order)
+            send_order_confirmation(order)
+        except Exception as e:
+            logger.error(f"Failed to trigger payment notifications for {order.order_number}: {str(e)}")
             
         return Response(get_success_response("Payment verified successfully.", {"status": "SUCCESS"}))
 

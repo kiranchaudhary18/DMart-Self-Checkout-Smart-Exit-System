@@ -1,0 +1,10 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<p>We detected some suspicious activity on your account.</p>
+<p><strong>Activity Type:</strong> {{ activity_type }}</p>
+{% if order %}
+<p><strong>Related Order:</strong> {{ order.order_number }}</p>
+{% endif %}
+<p>If you did not authorize this action, please contact our support team immediately.</p>
+{% endblock %}
