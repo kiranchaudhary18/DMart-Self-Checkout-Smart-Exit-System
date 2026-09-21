@@ -168,6 +168,11 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+import os
+# Razorpay Settings
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+
 # Spectacular Config
 SPECTACULAR_SETTINGS = {
     'TITLE': 'DMart Self Checkout API',

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, OrderItem
+from .models import Order, OrderItem, Receipt
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -24,6 +24,18 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('order', 'product_name', 'barcode', 'quantity', 'unit_price', 'total_amount', 'created_at')
     search_fields = ('order__order_number', 'product_name', 'barcode')
     readonly_fields = ('order', 'product', 'product_name', 'barcode', 'quantity', 'unit_price', 'gst_percentage', 'discount_amount', 'taxable_amount', 'gst_amount', 'total_amount', 'created_at')
+    
+    def has_add_permission(self, request):
+        return False
+        
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+@admin.register(Receipt)
+class ReceiptAdmin(admin.ModelAdmin):
+    list_display = ('receipt_number', 'order', 'generated_at', 'created_at')
+    search_fields = ('receipt_number', 'order__order_number')
+    readonly_fields = ('receipt_number', 'order', 'generated_at', 'created_at', 'updated_at')
     
     def has_add_permission(self, request):
         return False

@@ -3,15 +3,59 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
-from .models import Order, OrderItem
-from .serializers import OrderSerializer, OrderDetailSerializer
+from .models import Order, OrderItem, Receipt
+from .serializers import (
+    OrderSerializer, OrderDetailSerializer, FullReceiptSerializer
+)
+from .services import ReceiptService
 from apps.cart.models import Cart
 from apps.cart.views import get_or_create_customer_cart, IsCustomer
 from apps.inventory.models import Inventory
 from apps.coupons.services import PricingService
 from apps.accounts.views import get_success_response, get_error_response
 
+class PurchaseHistoryView(views.APIView):
+    permission_classes = [IsCustomer]
+
+    def get(self, request):
+        orders = Order.objects.filter(customer=request.user)
+        
+        # Filtering
+        payment_status = request.query_params.get('payment_status')
+        if payment_status:
+            orders = orders.filter(payment_status=payment_status)
+            
+        status_param = request.query_params.get('status')
+        if status_param:
+            orders = orders.filter(status=status_param)
+            
+        # Basic pagination could be added via LimitOffsetPagination, but for now we limit to 50
+        orders = orders[:50]
+        
+        serializer = OrderSerializer(orders, many=True)
+        return Response(get_success_response("Purchase history retrieved.", serializer.data))
+
+
+class ReceiptDetailView(views.APIView):
+    permission_classes = [IsCustomer]
+
+    def get(self, request, receipt_number=None, order_number=None):
+        if receipt_number:
+            receipt = get_object_or_404(Receipt, receipt_number=receipt_number, order__customer=request.user)
+        elif order_number:
+            order = get_object_or_404(Order, order_number=order_number, customer=request.user)
+            try:
+                receipt = ReceiptService.generate_receipt(order)
+            except ValueError as e:
+                return Response(get_error_response(str(e)), status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(get_error_response("Missing receipt or order number."), status=status.HTTP_400_BAD_REQUEST)
+            
+        serializer = FullReceiptSerializer(receipt)
+        return Response(get_success_response("Receipt retrieved.", serializer.data))
+
 class OrderListView(views.APIView):
+
     permission_classes = [IsCustomer]
 
     def get(self, request):

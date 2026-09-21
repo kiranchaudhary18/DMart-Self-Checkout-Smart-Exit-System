@@ -93,4 +93,20 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = "Order Item"
         verbose_name_plural = "Order Items"
+
+class Receipt(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='receipt')
+    receipt_number = models.CharField(max_length=50, unique=True, db_index=True, editable=False)
+    
+    generated_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Receipt {self.receipt_number} for Order {self.order.order_number}"
+
+    class Meta:
+        verbose_name = "Receipt"
+        verbose_name_plural = "Receipts"
+        ordering = ['-generated_at']
         

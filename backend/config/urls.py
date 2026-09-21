@@ -31,10 +31,11 @@ urlpatterns = [
     path('api/products/', include('apps.products.urls')),
     path('api/cart/', include('apps.cart.urls')),
     path('api/orders/', include('apps.orders.urls')),
-    path('api/payments/', dummy_api_view, {'app_name': 'Payments'}, name='payments_dummy'),
+    path('api/payments/', include('apps.payments.urls')),
     path('api/inventory/', include('apps.inventory.urls')),
     path('api/coupons/', include('apps.coupons.urls')),
-    path('api/loyalty/', dummy_api_view, {'app_name': 'Loyalty'}, name='loyalty_dummy'),
+    path('api/receipts/', include('apps.orders.urls_receipts')),
+    path('api/loyalty/', include('apps.loyalty.urls')),
     path('api/exit/', dummy_api_view, {'app_name': 'Exit Verification'}, name='exit_dummy'),
     path('api/analytics/', dummy_api_view, {'app_name': 'Analytics'}, name='analytics_dummy'),
 ]
