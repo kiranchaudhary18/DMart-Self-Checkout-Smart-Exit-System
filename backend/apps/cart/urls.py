@@ -4,11 +4,13 @@ from .views import (
     CartClearView,
     CartItemAddView,
     CartItemBarcodeAddView,
-    CartItemDetailView
+    CartItemDetailView,
+    CartSummaryView
 )
 
 urlpatterns = [
     path('', CartView.as_view(), name='cart-detail'),
+    path('summary/', CartSummaryView.as_view(), name='cart-summary'),
     path('clear/', CartClearView.as_view(), name='cart-clear'),
     path('items/', CartItemAddView.as_view(), name='cart-item-add'),
     path('items/barcode/', CartItemBarcodeAddView.as_view(), name='cart-item-barcode-add'),

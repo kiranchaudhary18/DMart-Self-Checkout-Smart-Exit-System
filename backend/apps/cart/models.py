@@ -22,6 +22,13 @@ class Cart(models.Model):
         choices=StatusChoices.choices, 
         default=StatusChoices.ACTIVE
     )
+    applied_coupon = models.ForeignKey(
+        'coupons.Coupon',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='carts'
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

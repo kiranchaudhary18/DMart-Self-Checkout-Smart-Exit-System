@@ -163,3 +163,13 @@ class CartItemDetailView(views.APIView):
         
         cart_serializer = CartSerializer(cart)
         return Response(get_success_response("Cart item removed successfully.", cart_serializer.data))
+
+class CartSummaryView(views.APIView):
+    permission_classes = [IsCustomer]
+
+    def get(self, request):
+        cart = get_or_create_customer_cart(request.user)
+        # Import dynamically to avoid circular import if PricingService imports Cart
+        from apps.coupons.services import PricingService
+        pricing = PricingService.calculate_cart_pricing(cart)
+        return Response(get_success_response("Cart summary retrieved.", pricing))
