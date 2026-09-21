@@ -36,6 +36,6 @@ urlpatterns = [
     path('api/coupons/', include('apps.coupons.urls')),
     path('api/receipts/', include('apps.orders.urls_receipts')),
     path('api/loyalty/', include('apps.loyalty.urls')),
-    path('api/exit/', dummy_api_view, {'app_name': 'Exit Verification'}, name='exit_dummy'),
-    path('api/analytics/', dummy_api_view, {'app_name': 'Analytics'}, name='analytics_dummy'),
+    path('api/exit-verification/', include('apps.exit_verification.urls')),
+    path('api/analytics/', include('apps.analytics.urls')),
 ]
