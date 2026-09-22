@@ -4,9 +4,9 @@ import React from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SecurityDashboardLayout } from "@/components/layout/SecurityDashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell } from "lucide-react";
+import { User } from "lucide-react";
 
-export default function SecurityAlertsPage() {
+export default function SecurityProfilePage() {
   return (
     <ProtectedRoute allowedRoles={["SECURITY", "ADMIN"]}>
       <SecurityDashboardLayout>
@@ -14,16 +14,16 @@ export default function SecurityAlertsPage() {
           <Card className="text-center py-16 shadow-sm border-dashed">
             <CardHeader>
               <div className="mx-auto bg-slate-100 p-4 rounded-full mb-4">
-                <Bell className="w-12 h-12 text-slate-400" />
+                <User className="w-12 h-12 text-slate-400" />
               </div>
-              <CardTitle className="text-2xl text-slate-800">Security Alerts</CardTitle>
+              <CardTitle className="text-2xl text-slate-800">Security Profile</CardTitle>
               <p className="text-base mt-2 text-slate-500">
                 This feature is planned for a future update.
               </p>
             </CardHeader>
             <CardContent>
               <p className="text-slate-500 max-w-md mx-auto">
-                Soon, you will be able to review system-generated security alerts and flagged suspicious behavior.
+                Soon, you will be able to manage your security personnel profile, adjust notification settings, and review your shift activity here.
               </p>
             </CardContent>
           </Card>
