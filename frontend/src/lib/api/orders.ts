@@ -14,4 +14,13 @@ export const ordersService = {
     }
     return Array.isArray(response.data) ? response.data : [];
   },
+
+  /**
+   * Fetch details of a specific order
+   * Maps to GET /api/orders/<order_number>/
+   */
+  async getOrderDetails(orderNumber: string): Promise<Order> {
+    const response = await apiClient.get<{ status: string, message: string, data: Order }>(`/orders/${orderNumber}/`);
+    return response.data.data;
+  },
 };

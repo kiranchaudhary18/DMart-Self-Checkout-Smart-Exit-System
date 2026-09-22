@@ -31,20 +31,39 @@ export interface CartSummary {
 
 export interface OrderItem {
   id: number;
+  product: number;
   product_name: string;
+  barcode: string;
   quantity: number;
-  price: number;
-  subtotal: number;
+  unit_price: string;
+  gst_percentage: string;
+  discount_amount: string;
+  taxable_amount: string;
+  gst_amount: string;
+  total_amount: string;
+}
+
+export interface Receipt {
+  id: number;
+  receipt_number: string;
+  generated_at: string;
+  created_at: string;
 }
 
 export interface Order {
   id: number;
   order_number: string;
-  customer: number;
   status: "PENDING" | "PAID" | "VERIFIED" | "CANCELLED";
-  total_amount: number;
-  items: OrderItem[];
+  payment_status: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED";
+  subtotal: string;
+  discount_amount: string;
+  taxable_amount: string;
+  gst_amount: string;
+  total_amount: string;
+  coupon_code: string | null;
   created_at: string;
+  receipt: Receipt | null;
+  items?: OrderItem[]; // Present in detail view
 }
 
 export interface LoyaltyBalance {

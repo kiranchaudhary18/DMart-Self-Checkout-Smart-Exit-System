@@ -278,7 +278,7 @@ export default function DashboardPage() {
                       <div>
                         <p className="font-semibold text-sm text-slate-900">{order.order_number}</p>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          {new Date(order.created_at).toLocaleDateString()} • {order.items.length} items
+                          {new Date(order.created_at).toLocaleDateString()} • {order.items?.length || 0} items
                         </p>
                       </div>
                       <div className="text-right">
