@@ -91,7 +91,7 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <div className="mb-8 grid gap-4 grid-cols-2 md:grid-cols-4">
-          <Link href="/scan">
+          <Link href="/customer/scan">
             <Card className="border-0 shadow-sm hover:shadow-md transition-shadow bg-primary-600 text-white cursor-pointer group h-full">
               <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                 <ScanBarcode className="h-8 w-8 mb-3 text-primary-100 group-hover:scale-110 transition-transform" />
@@ -101,7 +101,7 @@ export default function DashboardPage() {
             </Card>
           </Link>
           
-          <Link href="/cart">
+          <Link href="/customer/cart">
             <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer group h-full">
               <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                 <ShoppingCart className="h-8 w-8 mb-3 text-teal-600 group-hover:scale-110 transition-transform" />
@@ -113,7 +113,7 @@ export default function DashboardPage() {
             </Card>
           </Link>
 
-          <Link href="/history">
+          <Link href="/customer/history">
             <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer group h-full">
               <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                 <Clock className="h-8 w-8 mb-3 text-amber-600 group-hover:scale-110 transition-transform" />
@@ -125,7 +125,7 @@ export default function DashboardPage() {
             </Card>
           </Link>
 
-          <Link href="/exit-qr">
+          <Link href="/customer/exit-qr">
             <Card className={`border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer group h-full ${isExitAvailable ? 'bg-amber-50 border-amber-200' : ''}`}>
               <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                 <QrCode className={`h-8 w-8 mb-3 group-hover:scale-110 transition-transform ${isExitAvailable ? 'text-amber-600' : 'text-slate-700'}`} />

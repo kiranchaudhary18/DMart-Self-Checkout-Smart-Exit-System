@@ -113,16 +113,66 @@ export function LoginForm() {
         </label>
       </div>
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white" disabled={isLoading}>
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Signing in...
           </>
         ) : (
-          "Login"
+          "Sign in"
         )}
       </Button>
+
+      {/* Development Quick Login Helpers */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="pt-6 mt-6 border-t border-slate-100">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 text-center">
+            Development Quick Login
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-xs bg-slate-50 hover:bg-slate-100"
+              onClick={() => {
+                setEmail("customer@dmart.com");
+                setPassword("Test@123");
+              }}
+            >
+              Customer
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-200"
+              onClick={() => {
+                setEmail("security@dmart.com");
+                setPassword("Test@123");
+              }}
+            >
+              Security
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-xs bg-red-50 text-red-700 hover:bg-red-100 border-red-200"
+              onClick={() => {
+                setEmail("admin@dmart.com");
+                setPassword("Test@123");
+              }}
+            >
+              Admin
+            </Button>
+          </div>
+          <p className="text-[10px] text-slate-400 text-center mt-2">
+            Click a button to auto-fill credentials.
+          </p>
+        </div>
+      )}
     </form>
   )
 }

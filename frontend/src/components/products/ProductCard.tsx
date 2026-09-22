@@ -73,7 +73,7 @@ export function ProductCard({ product, categories }: ProductCardProps) {
 
       <div className="flex p-4 pt-0 gap-2">
         <Link 
-          href={`/products/${product.id}`}
+          href={`/customer/products/${product.id}`}
           className="flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-slate-200 text-slate-600 hover:text-primary-700 hover:bg-primary-50 h-10 px-4 py-2"
         >
           <Eye className="h-4 w-4 mr-2" />

@@ -49,11 +49,14 @@ export function SignupForm() {
         name,
         email,
         phone,
-        password
-      })
+        password,
+        confirm_password: confirmPassword
+      } as any)
       // If registration succeeds, log them in automatically
       await login({ email, password })
     } catch (err: any) {
+      console.error("SIGNUP ERROR OBJECT:", err);
+      // err.message should now be populated correctly by handleApiError
       setError(err.message || "Registration failed. Email or phone may already be in use.")
       setIsLoading(false)
     }

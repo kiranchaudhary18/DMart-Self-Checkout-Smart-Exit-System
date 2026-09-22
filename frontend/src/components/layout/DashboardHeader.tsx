@@ -6,6 +6,7 @@ import { Search, ShoppingCart, Bell, Menu, User, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cartService } from "@/lib/api/cart";
+import Link from "next/link";
 
 interface DashboardHeaderProps {
   onMenuClick?: () => void;
@@ -81,24 +82,28 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         </Button>
 
         {/* Cart */}
-        <Button variant="ghost" size="sm" className="relative text-slate-500 h-9 w-9 p-0">
-          <ShoppingCart className="h-5 w-5" />
-          {!isLoading && cartCount !== null && cartCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white">
-              {cartCount > 99 ? '99+' : cartCount}
-            </span>
-          )}
-          {isLoading && (
-            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-slate-500">
-              <Loader2 className="h-2.5 w-2.5 animate-spin" />
-            </span>
-          )}
-        </Button>
+        <Link href="/customer/cart" passHref>
+          <Button variant="ghost" size="sm" className="relative text-slate-500 h-9 w-9 p-0">
+            <ShoppingCart className="h-5 w-5" />
+            {!isLoading && cartCount !== null && cartCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
+            {isLoading && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-slate-500">
+                <Loader2 className="h-2.5 w-2.5 animate-spin" />
+              </span>
+            )}
+          </Button>
+        </Link>
 
-        {/* Profile Avatar Placeholder */}
-        <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center border border-slate-300 overflow-hidden">
-          <User className="h-4 w-4 text-slate-500" />
-        </div>
+        {/* Profile Avatar */}
+        <Link href="/customer/profile">
+          <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center border border-slate-300 overflow-hidden cursor-pointer hover:border-primary-400 transition-colors">
+            <User className="h-4 w-4 text-slate-500" />
+          </div>
+        </Link>
       </div>
     </header>
   );

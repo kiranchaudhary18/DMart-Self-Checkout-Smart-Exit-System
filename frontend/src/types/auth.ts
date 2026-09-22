@@ -35,6 +35,7 @@ export interface BaseSignupRequest {
 
 export interface CustomerSignupRequest extends BaseSignupRequest {
   role: "CUSTOMER";
+  confirm_password?: string;
 }
 
 export interface SecuritySignupRequest extends BaseSignupRequest {

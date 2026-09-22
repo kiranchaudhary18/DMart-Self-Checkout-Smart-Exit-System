@@ -15,19 +15,20 @@ import {
   QrCode, 
   User, 
   LogOut,
-  Store
+  Store,
+  Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Scan Product", href: "/scan", icon: ScanBarcode },
-  { title: "Products", href: "/products", icon: PackageSearch },
-  { title: "Cart", href: "/cart", icon: ShoppingCart },
-  { title: "Orders & History", href: "/history", icon: Clock },
-  { title: "Loyalty", href: "/loyalty", icon: Award },
-  { title: "Exit QR", href: "/exit-qr", icon: QrCode },
-  { title: "Profile", href: "/profile", icon: User },
+  { title: "Dashboard", href: "/customer/dashboard", icon: LayoutDashboard },
+  { title: "Scan Product", href: "/customer/scan", icon: ScanBarcode },
+  { title: "Products", href: "/customer/products", icon: PackageSearch },
+  { title: "Cart", href: "/customer/cart", icon: ShoppingCart },
+  { title: "Orders & History", href: "/customer/history", icon: Clock },
+  { title: "Loyalty", href: "/customer/loyalty", icon: Star },
+  { title: "Exit QR", href: "/customer/exit-qr", icon: QrCode },
+  { title: "Profile", href: "/customer/profile", icon: User },
 ];
 
 export function DashboardSidebar({ className, onNavigate }: { className?: string, onNavigate?: () => void }) {

@@ -108,7 +108,7 @@ export default function ProductDetailsPage() {
               We couldn't load the details for this product. It may have been removed or is currently unavailable.
             </p>
             <Link 
-              href="/products"
+              href="/customer/products"
               className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white"
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Products
@@ -130,7 +130,7 @@ export default function ProductDetailsPage() {
         {/* Navigation Breadcrumb / Back button */}
         <div className="mb-6 md:mb-8">
           <Link 
-            href="/products"
+            href="/customer/products"
             className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-1.5" />

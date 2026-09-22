@@ -15,8 +15,30 @@ export const handleApiError = (error: unknown): ApiError => {
       const data = axiosError.response.data;
 
       switch (status) {
-        case 400:
-          return { message: 'Bad Request. Please check your input.', code: '400', ...data };
+        case 400: {
+          let customMessage = 'Bad Request. Please check your input.';
+          
+          if (data && typeof data === 'object') {
+            // Check if there is an explicit "errors" dict from the backend
+            const errDict = data.errors || data;
+            
+            // Find the first key that isn't 'message' or 'success'
+            const keys = Object.keys(errDict).filter(k => k !== 'message' && k !== 'success');
+            
+            if (keys.length > 0) {
+              const firstKey = keys[0];
+              const firstError = errDict[firstKey];
+              if (Array.isArray(firstError) && typeof firstError[0] === 'string') {
+                customMessage = `${firstKey}: ${firstError[0]}`;
+              } else if (typeof firstError === 'string') {
+                customMessage = firstError;
+              }
+            } else if (data.message) {
+              customMessage = data.message;
+            }
+          }
+          return { message: customMessage, code: '400', ...data };
+        }
         case 401:
           return { message: 'Unauthorized. Please login again.', code: '401', ...data };
         case 403:
