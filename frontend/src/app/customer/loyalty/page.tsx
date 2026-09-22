@@ -4,9 +4,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LoyaltySummary, LoyaltyTransaction } from "@/types/loyalty";
 import { loyaltyService } from "@/lib/api/loyalty";
+import { removeTokens } from "@/lib/auth/token";
 import { Gift, Award, ArrowUpRight, ArrowDownRight, Info, Loader2, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LoyaltyPage() {
+  const router = useRouter();
   const [summary, setSummary] = useState<LoyaltySummary | null>(null);
   const [transactions, setTransactions] = useState<LoyaltyTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,11 +27,16 @@ export default function LoyaltyPage() {
       setTransactions(txData);
     } catch (err: any) {
       console.error("Failed to fetch loyalty data:", err);
+      if (err.status === 401 || err.response?.status === 401 || err.originalStatus === 401) {
+        removeTokens();
+        router.push('/login');
+        return;
+      }
       setError("Unable to load your loyalty rewards. Please try again later.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     fetchData();

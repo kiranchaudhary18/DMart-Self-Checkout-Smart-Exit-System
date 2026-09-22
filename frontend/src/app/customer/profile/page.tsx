@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { UserProfile, UpdateProfileRequest } from "@/types/profile";
 import { profileService } from "@/lib/api/profile";
+import { removeTokens } from "@/lib/auth/token";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { User, Mail, Phone, Lock, LogOut, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
@@ -28,13 +29,16 @@ export default function ProfilePage() {
       setIsLoading(true);
       const data = await profileService.getProfile();
       setProfile(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch profile:", err);
-      // Optional: show global error or handle token expiration
+      if (err.status === 401 || err.response?.status === 401 || err.originalStatus === 401) {
+        removeTokens();
+        router.push('/login');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     fetchProfile();
@@ -69,9 +73,14 @@ export default function ProfilePage() {
       setIsEditing(false);
     } catch (err: any) {
       console.error("Update profile failed:", err);
+      if (err.status === 401 || err.response?.status === 401 || err.originalStatus === 401) {
+        removeTokens();
+        router.push('/login');
+        return;
+      }
       setSaveStatus({ 
         type: 'error', 
-        message: err.response?.data?.message || 'Failed to update profile. Please try again.' 
+        message: err.message || err.response?.data?.message || 'Failed to update profile. Please try again.' 
       });
     } finally {
       setIsSaving(false);
@@ -79,8 +88,7 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
-    // Basic frontend logout simulation
-    localStorage.removeItem("token");
+    removeTokens();
     router.push("/login");
   };
 
