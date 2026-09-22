@@ -130,7 +130,19 @@ export function LoginForm() {
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 text-center">
             Development Quick Login
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-xs bg-slate-50 hover:bg-slate-100"
+              onClick={() => {
+                setEmail("kiran.chaudhary.cg@gmail.com");
+                setPassword("Test@123");
+              }}
+            >
+              Kiran (Customer)
+            </Button>
             <Button
               type="button"
               variant="outline"
@@ -141,7 +153,7 @@ export function LoginForm() {
                 setPassword("Test@123");
               }}
             >
-              Customer
+              Test Customer
             </Button>
             <Button
               type="button"
@@ -162,7 +174,7 @@ export function LoginForm() {
               className="text-xs bg-red-50 text-red-700 hover:bg-red-100 border-red-200"
               onClick={() => {
                 setEmail("admin@dmart.com");
-                setPassword("Test@123");
+                setPassword("Admin@123");
               }}
             >
               Admin

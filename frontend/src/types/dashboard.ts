@@ -7,22 +7,26 @@ export interface Product {
   price: number;
   barcode: string;
   stock_quantity: number;
+  category?: any;
+  image?: string;
 }
 
 export interface CartItem {
   id: number;
-  product: Product;
+  product: number; // ID of the product
+  product_name: string;
+  barcode: string;
   quantity: number;
-  subtotal: number;
+  unit_price: string;
+  item_total: string;
 }
 
 export interface CartSummary {
   id: number;
-  customer: number;
+  status: string;
   items: CartItem[];
-  total_price: number;
-  created_at: string;
-  updated_at: string;
+  subtotal: string;
+  total_item_count: number;
 }
 
 export interface OrderItem {

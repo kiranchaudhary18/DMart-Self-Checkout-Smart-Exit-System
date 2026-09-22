@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Search, ShoppingCart, Bell, Menu, User, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { cartService } from "@/lib/api/cart";
+import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
 interface DashboardHeaderProps {
@@ -16,29 +16,8 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const { user } = useAuth();
   const userName = user?.name || "Customer";
 
-  const [cartCount, setCartCount] = React.useState<number | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    let mounted = true;
-    const fetchCart = async () => {
-      try {
-        const cartData = await cartService.getCartSummary();
-        if (mounted) {
-          const count = cartData.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-          setCartCount(count);
-        }
-      } catch (err) {
-        // Silently fail in header, just show 0 or hide badge
-        if (mounted) setCartCount(0);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
-
-    fetchCart();
-    return () => { mounted = false; };
-  }, []);
+  const { cart, isLoading } = useCart();
+  const cartCount = cart?.total_item_count || 0;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 md:px-8">

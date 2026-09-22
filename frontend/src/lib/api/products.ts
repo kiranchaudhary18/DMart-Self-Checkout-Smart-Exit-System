@@ -47,6 +47,15 @@ export const productsService = {
   },
 
   /**
+   * Fetch a single product by its barcode.
+   * Maps to GET /api/products/barcode/:barcode/
+   */
+  async getProductByBarcode(barcode: string): Promise<Product> {
+    const response = await apiClient.get<Product>(`/products/barcode/${barcode}/`);
+    return response.data;
+  },
+
+  /**
    * Fetch a list of active categories.
    * Maps to GET /api/products/categories/
    */

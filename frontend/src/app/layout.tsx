@@ -8,6 +8,7 @@ const inter = Inter({
 });
 
 import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { CartProvider } from "@/context/CartContext";
 
 export const metadata: Metadata = {
   title: "DMart - Self Checkout & Smart Exit",
@@ -22,7 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -35,7 +35,7 @@ export default function DashboardPage() {
     const fetchDashboardData = async () => {
       // Cart
       try {
-        const cartData = await cartService.getCartSummary();
+        const cartData = await cartService.getCart();
         if (mounted) setCart(cartData);
       } catch (err) {
         if (mounted) setCartError(true);
@@ -71,8 +71,8 @@ export default function DashboardPage() {
     };
   }, []);
 
-  const cartItemsCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-  const cartTotal = cart?.total_price || 0;
+  const cartItemsCount = cart?.total_item_count || 0;
+  const cartTotal = cart?.subtotal ? parseFloat(cart.subtotal) : 0;
   const recentOrders = orders?.slice(0, 3) || [];
   
   // Deriving exit status from the latest order (if it's paid, Exit QR is available)

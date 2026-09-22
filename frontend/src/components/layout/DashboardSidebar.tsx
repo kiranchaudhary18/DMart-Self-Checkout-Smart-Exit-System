@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/context/CartContext";
 import { 
   LayoutDashboard, 
   ScanBarcode, 
@@ -34,11 +35,12 @@ const navItems = [
 export function DashboardSidebar({ className, onNavigate }: { className?: string, onNavigate?: () => void }) {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const { cart } = useCart();
 
   return (
     <div className={cn("flex flex-col border-r bg-white w-64 min-h-screen", className)}>
       <div className="flex h-16 items-center px-6 border-b border-slate-100">
-        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-xl text-slate-900 group">
+        <Link href="/customer/dashboard" className="flex items-center gap-2 font-bold text-xl text-slate-900 group">
           <div className="bg-primary-600 rounded-lg p-1.5 text-white group-hover:bg-primary-700 transition-colors">
             <Store className="h-5 w-5" />
           </div>
@@ -49,7 +51,7 @@ export function DashboardSidebar({ className, onNavigate }: { className?: string
       <div className="flex-1 overflow-y-auto py-6 px-4">
         <nav className="space-y-1">
           {navItems.map((item) => {
-            const isActive = item.href === "/dashboard" 
+            const isActive = item.href === "/customer/dashboard" 
               ? pathname === item.href 
               : pathname.startsWith(item.href);
 
@@ -66,7 +68,15 @@ export function DashboardSidebar({ className, onNavigate }: { className?: string
                 )}
               >
                 <item.icon className={cn("h-4 w-4", isActive ? "text-primary-600" : "text-slate-400")} />
-                {item.title}
+                <span className="flex-1">{item.title}</span>
+                {item.href === "/customer/cart" && cart && cart.total_item_count > 0 && (
+                  <span className={cn(
+                    "ml-auto text-xs font-bold px-2 py-0.5 rounded-full",
+                    isActive ? "bg-primary-600 text-white" : "bg-slate-200 text-slate-700"
+                  )}>
+                    {cart.total_item_count}
+                  </span>
+                )}
               </Link>
             );
           })}
