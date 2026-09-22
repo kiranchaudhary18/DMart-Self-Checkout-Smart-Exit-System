@@ -11,7 +11,8 @@ import Link from "next/link";
 import { cartService } from "@/lib/api/cart";
 import { ordersService } from "@/lib/api/orders";
 import { loyaltyService } from "@/lib/api/loyalty";
-import { CartSummary, Order, LoyaltyBalance } from "@/types/dashboard";
+import { CartSummary, Order } from "@/types/dashboard";
+import { LoyaltySummary } from "@/types/loyalty";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -19,7 +20,7 @@ export default function DashboardPage() {
 
   const [cart, setCart] = React.useState<CartSummary | null>(null);
   const [orders, setOrders] = React.useState<Order[] | null>(null);
-  const [loyalty, setLoyalty] = React.useState<LoyaltyBalance | null>(null);
+  const [loyalty, setLoyalty] = React.useState<LoyaltySummary | null>(null);
 
   const [isCartLoading, setIsCartLoading] = React.useState(true);
   const [isOrdersLoading, setIsOrdersLoading] = React.useState(true);
@@ -183,7 +184,7 @@ export default function DashboardPage() {
               ) : loyaltyError ? (
                 <div className="flex items-center text-xs text-red-500"><AlertCircle className="h-3 w-3 mr-1" /> Error</div>
               ) : (
-                <div className="text-2xl font-bold text-slate-900">{loyalty?.points || 0}</div>
+                <div className="text-2xl font-bold text-slate-900">{loyalty?.points_balance || 0}</div>
               )}
             </CardContent>
           </Card>

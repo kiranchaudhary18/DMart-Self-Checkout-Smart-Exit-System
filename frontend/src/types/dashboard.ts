@@ -65,8 +65,3 @@ export interface Order {
   receipt: Receipt | null;
   items?: OrderItem[]; // Present in detail view
 }
-
-export interface LoyaltyBalance {
-  points: number;
-  tier: string;
-}

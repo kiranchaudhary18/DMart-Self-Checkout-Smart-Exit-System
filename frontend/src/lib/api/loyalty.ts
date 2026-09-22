@@ -1,13 +1,22 @@
 import { apiClient } from "./client";
-import { LoyaltyBalance } from "@/types/dashboard";
+import { LoyaltySummary, LoyaltyTransaction } from "@/types/loyalty";
 
 export const loyaltyService = {
   /**
    * Fetch the current user's loyalty balance.
-   * Maps to GET /api/loyalty/balance/
+   * GET /api/loyalty/
    */
-  async getLoyaltyBalance(): Promise<LoyaltyBalance> {
-    const response = await apiClient.get<LoyaltyBalance>("/loyalty/balance/");
-    return response.data;
+  async getLoyaltyBalance(): Promise<LoyaltySummary> {
+    const response = await apiClient.get<{ status: string; message: string; data: LoyaltySummary }>("/loyalty/");
+    return response.data.data;
   },
+
+  /**
+   * Fetch the current user's loyalty transactions.
+   * GET /api/loyalty/transactions/
+   */
+  async getLoyaltyTransactions(): Promise<LoyaltyTransaction[]> {
+    const response = await apiClient.get<{ status: string; message: string; data: LoyaltyTransaction[] }>("/loyalty/transactions/");
+    return response.data.data;
+  }
 };
