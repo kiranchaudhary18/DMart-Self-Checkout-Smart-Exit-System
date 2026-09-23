@@ -6,6 +6,8 @@ import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/hooks/useAuth"
+import { useToast } from "@/hooks/useToast"
+import { handleApiError } from "@/lib/utils/errorHandler"
 
 export function LoginForm() {
   const [email, setEmail] = React.useState("")
@@ -13,6 +15,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false)
   
   const { login, isLoading } = useAuth()
+  const { success, error: toastError } = useToast()
   const [error, setError] = React.useState<string | null>(null)
   
   const validate = () => {
@@ -34,16 +37,19 @@ export function LoginForm() {
 
     try {
       await login({ email, password })
+      success("Welcome back! You have successfully logged in.")
     } catch (err: any) {
-      setError(err.message || "Failed to log in. Please check your credentials.")
+      const msg = handleApiError(err);
+      setError(msg)
+      toastError(msg, "Login Failed")
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
-          <AlertCircle className="h-4 w-4" />
+        <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert" aria-live="assertive">
+          <AlertCircle className="h-4 w-4" aria-hidden="true" />
           <p>{error}</p>
         </div>
       )}
@@ -60,6 +66,7 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           disabled={isLoading}
           autoComplete="email"
+          aria-invalid={!!error}
         />
       </div>
 
@@ -85,6 +92,7 @@ export function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
             autoComplete="current-password"
+            aria-invalid={!!error}
           />
           <button
             type="button"

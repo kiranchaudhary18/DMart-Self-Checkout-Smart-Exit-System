@@ -69,11 +69,18 @@ apiClient.interceptors.response.use(
         
         // Refresh token invalid or absent
         removeTokens();
+        // Dispatch custom event for UI to catch and redirect
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:expired'));
+        }
         // Fallthrough to reject
       } catch (refreshError) {
         // Refresh failed, logout
         const { removeTokens } = require('@/lib/auth/token');
         removeTokens();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:expired'));
+        }
       }
     }
 

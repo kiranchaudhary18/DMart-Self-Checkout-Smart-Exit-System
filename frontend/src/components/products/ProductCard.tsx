@@ -82,8 +82,9 @@ export function ProductCard({ product, categories }: ProductCardProps) {
         <Button 
           className="flex-1 bg-primary-600 hover:bg-primary-700 text-white"  
           disabled={isOutOfStock}
+          aria-label={`Add ${product.name} to cart`}
         >
-          <ShoppingCart className="h-4 w-4 mr-2" />
+          <ShoppingCart className="h-4 w-4 mr-2" aria-hidden="true" />
           Add
         </Button>
       </div>

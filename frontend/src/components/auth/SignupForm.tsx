@@ -7,8 +7,11 @@ import { Input } from "@/components/ui/input"
 
 import { useAuth } from "@/hooks/useAuth"
 import { authService } from "@/lib/api/auth"
+import { useToast } from "@/hooks/useToast"
+import { handleApiError } from "@/lib/utils/errorHandler"
 
 export function SignupForm() {
+  const { success, error: toastError } = useToast()
   const [name, setName] = React.useState("")
   const [email, setEmail] = React.useState("")
   const [phone, setPhone] = React.useState("")
@@ -54,10 +57,13 @@ export function SignupForm() {
       } as any)
       // If registration succeeds, log them in automatically
       await login({ email, password })
+      success("Your account has been created successfully!", "Welcome")
     } catch (err: any) {
       console.error("SIGNUP ERROR OBJECT:", err);
       // err.message should now be populated correctly by handleApiError
-      setError(err.message || "Registration failed. Email or phone may already be in use.")
+      const msg = handleApiError(err);
+      setError(msg)
+      toastError(msg, "Registration Failed")
       setIsLoading(false)
     }
   }
@@ -65,8 +71,8 @@ export function SignupForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert" aria-live="assertive">
+          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           <p>{error}</p>
         </div>
       )}
@@ -83,6 +89,7 @@ export function SignupForm() {
           onChange={(e) => setName(e.target.value)}
           disabled={isLoading}
           autoComplete="name"
+          aria-invalid={!!error}
         />
       </div>
 
@@ -98,6 +105,7 @@ export function SignupForm() {
           onChange={(e) => setEmail(e.target.value)}
           disabled={isLoading}
           autoComplete="email"
+          aria-invalid={!!error}
         />
       </div>
 
@@ -113,6 +121,7 @@ export function SignupForm() {
           onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} // Only numbers
           disabled={isLoading}
           autoComplete="tel"
+          aria-invalid={!!error}
         />
       </div>
 
@@ -129,6 +138,7 @@ export function SignupForm() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
             autoComplete="new-password"
+            aria-invalid={!!error}
           />
           <button
             type="button"
@@ -153,6 +163,7 @@ export function SignupForm() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           disabled={isLoading}
           autoComplete="new-password"
+          aria-invalid={!!error}
         />
       </div>
 

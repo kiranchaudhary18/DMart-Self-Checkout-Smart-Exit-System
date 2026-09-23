@@ -59,9 +59,15 @@ export function SecurityDashboardLayout({ children }: { children: React.ReactNod
       <div className="flex flex-1 flex-col md:pl-64 min-w-0">
         {/* Mobile Header (Desktop header can just be the page header) */}
         <header className="md:hidden flex h-16 items-center border-b bg-white px-4 shrink-0">
-          <Button variant="ghost" size="sm" className="px-2" onClick={() => setMobileMenuOpen(true)}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="px-2" 
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+          >
             <Menu className="h-6 w-6" />
-            <span className="sr-only">Toggle Sidebar</span>
           </Button>
           <div className="font-bold text-lg ml-4 text-slate-800">
             DMart Security

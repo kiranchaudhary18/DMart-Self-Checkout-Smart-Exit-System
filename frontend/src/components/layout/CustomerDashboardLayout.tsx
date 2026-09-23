@@ -57,7 +57,7 @@ export function CustomerDashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col md:pl-64 min-w-0">
-        <DashboardHeader onMenuClick={() => setMobileMenuOpen(true)} />
+        <DashboardHeader onMenuClick={() => setMobileMenuOpen(true)} isOpen={mobileMenuOpen} />
         <main className="flex-1 p-4 md:p-8 overflow-x-hidden">
           {children}
         </main>

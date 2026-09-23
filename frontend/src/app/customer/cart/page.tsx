@@ -9,20 +9,22 @@ import { CartSkeleton } from "@/components/cart/CartSkeleton";
 import { EmptyCart } from "@/components/cart/EmptyCart";
 import { ShoppingCart, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/useToast";
+import { handleApiError } from "@/lib/utils/errorHandler";
+import { ErrorState } from "@/components/shared/ErrorState";
 
 export default function CartPage() {
   const { cart, isLoading, error, fetchCart, updateItemQuantity, removeItem, clearCart } = useCart();
+  const { success, error: toastError, info } = useToast();
   const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
   const [isClearing, setIsClearing] = useState(false);
 
   const handleUpdateQuantity = async (id: number, quantity: number) => {
     setUpdatingItemId(id);
-    setActionError(null);
     try {
       await updateItemQuantity(id, quantity);
     } catch (err: any) {
-      setActionError(err.message);
+      toastError(handleApiError(err), "Update Failed");
     } finally {
       setUpdatingItemId(null);
     }
@@ -32,11 +34,11 @@ export default function CartPage() {
     if (!window.confirm("Remove this product from your cart?")) return;
     
     setUpdatingItemId(id);
-    setActionError(null);
     try {
       await removeItem(id);
+      info("Product removed from cart");
     } catch (err: any) {
-      setActionError(err.message);
+      toastError(handleApiError(err), "Remove Failed");
     } finally {
       setUpdatingItemId(null);
     }
@@ -46,11 +48,11 @@ export default function CartPage() {
     if (!window.confirm("Are you sure you want to clear your entire cart?")) return;
     
     setIsClearing(true);
-    setActionError(null);
     try {
       await clearCart();
+      success("Cart has been cleared");
     } catch (err: any) {
-      setActionError(err.message);
+      toastError(handleApiError(err), "Clear Failed");
     } finally {
       setIsClearing(false);
     }
@@ -78,15 +80,12 @@ export default function CartPage() {
   if (error) {
     return (
       <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 flex flex-col items-center justify-center text-center">
-          <div className="p-4 bg-red-50 text-red-600 rounded-full mb-4">
-            <AlertCircle className="h-8 w-8" />
-          </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Unable to load your cart.</h2>
-          <p className="text-slate-500 mb-6 max-w-sm">
-            {error || "There was a problem communicating with our servers. Please try again."}
-          </p>
-          <Button onClick={fetchCart}>Try Again</Button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <ErrorState 
+            title="Unable to load your cart"
+            message={error || "There was a problem communicating with our servers. Please try again."}
+            onRetry={fetchCart}
+          />
         </div>
       </ProtectedRoute>
     );
@@ -125,13 +124,7 @@ export default function CartPage() {
           )}
         </div>
 
-        {/* Global Action Error Toast/Banner */}
-        {actionError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-800">
-            <AlertCircle className="h-5 w-5 shrink-0" />
-            <p className="text-sm font-medium">{actionError}</p>
-          </div>
-        )}
+
 
         {/* Content */}
         {items.length === 0 ? (

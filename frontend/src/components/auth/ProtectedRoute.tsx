@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Loader2, ShieldAlert } from "lucide-react";
 import { UserRole } from "@/types/auth";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,17 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
+  const pathname = usePathname();
+
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push("/login");
+      if (pathname.startsWith('/admin')) {
+        router.push('/admin/login');
+      } else {
+        router.push('/login');
+      }
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router, pathname]);
 
   if (isLoading) {
     return (
@@ -46,7 +52,17 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
           <p className="text-slate-500">
             You do not have permission to access this page. This area is restricted to {allowedRoles.join(" or ")} accounts.
           </p>
-          <Button onClick={() => router.push("/login")} variant="outline" className="mt-4 w-full">
+          <Button 
+            onClick={() => {
+              if (pathname.startsWith('/admin')) {
+                router.push("/admin/login");
+              } else {
+                router.push("/login");
+              }
+            }} 
+            variant="outline" 
+            className="mt-4 w-full"
+          >
             Return to Login
           </Button>
         </div>

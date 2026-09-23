@@ -11,9 +11,12 @@ export interface Product {
   description: string;
   price: number;
   barcode: string;
+  sku: string;
   stock_quantity: number;
   category: number | Category;
   image?: string | null;
+  gst_percentage: number;
+  unit: string;
   is_active: boolean;
 }
 

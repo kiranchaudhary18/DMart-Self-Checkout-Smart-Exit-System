@@ -7,8 +7,10 @@ import { profileService } from "@/lib/api/profile";
 import { removeTokens } from "@/lib/auth/token";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Mail, Phone, Lock, LogOut, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { LogOut, CheckCircle2, AlertCircle, Loader2, User, Mail, Phone, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/useToast";
+import { handleApiError } from "@/lib/utils/errorHandler";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -22,7 +24,7 @@ export default function ProfilePage() {
   });
   
   const [isSaving, setIsSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const { success, error: toastError } = useToast();
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -50,7 +52,6 @@ export default function ProfilePage() {
         name: profile.name,
         phone: profile.phone,
       });
-      setSaveStatus(null);
     }
     setIsEditing(!isEditing);
   };
@@ -58,18 +59,17 @@ export default function ProfilePage() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setSaveStatus(null);
     
     try {
       if (!editForm.name?.trim()) {
-        setSaveStatus({ type: 'error', message: 'Name is required.' });
+        toastError("Name is required.", "Validation Error");
         setIsSaving(false);
         return;
       }
 
       const updated = await profileService.updateProfile(editForm);
       setProfile(updated);
-      setSaveStatus({ type: 'success', message: 'Profile updated successfully.' });
+      success("Your profile has been updated successfully.", "Profile Updated");
       setIsEditing(false);
     } catch (err: any) {
       console.error("Update profile failed:", err);
@@ -78,10 +78,7 @@ export default function ProfilePage() {
         router.push('/login');
         return;
       }
-      setSaveStatus({ 
-        type: 'error', 
-        message: err.message || err.response?.data?.message || 'Failed to update profile. Please try again.' 
-      });
+      toastError(handleApiError(err), "Update Failed");
     } finally {
       setIsSaving(false);
     }
@@ -116,17 +113,7 @@ export default function ProfilePage() {
           </Button>
         </div>
 
-        {saveStatus && (
-          <div className={`mb-6 p-4 rounded-lg flex items-start gap-3 border ${
-            saveStatus.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'
-          }`}>
-            {saveStatus.type === 'success' ? <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" /> : <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />}
-            <div>
-              <h3 className="font-medium">{saveStatus.type === 'success' ? 'Success' : 'Error'}</h3>
-              <p className="text-sm mt-0.5 opacity-90">{saveStatus.message}</p>
-            </div>
-          </div>
-        )}
+
 
         <div className="space-y-6">
           {/* Personal Information Card */}
@@ -228,19 +215,17 @@ export default function ProfilePage() {
                 const confirm_password = (form.elements.namedItem('confirm_password') as HTMLInputElement).value;
                 
                 if (new_password !== confirm_password) {
-                  setSaveStatus({ type: 'error', message: 'New passwords do not match.' });
+                  toastError("New passwords do not match.", "Validation Error");
                   return;
                 }
                 
                 setIsSaving(true);
-                setSaveStatus(null);
                 try {
                   await profileService.changePassword({ old_password, new_password, confirm_password });
-                  setSaveStatus({ type: 'success', message: 'Password updated successfully.' });
+                  success("Your password has been updated securely.", "Security Update");
                   form.reset();
                 } catch (err: any) {
-                  const errorMsg = err.response?.data?.message || err.response?.data?.errors?.new_password?.[0] || err.response?.data?.errors?.old_password?.[0] || 'Failed to update password.';
-                  setSaveStatus({ type: 'error', message: errorMsg });
+                  toastError(handleApiError(err), "Password Update Failed");
                 } finally {
                   setIsSaving(false);
                 }

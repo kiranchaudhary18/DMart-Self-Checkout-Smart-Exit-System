@@ -10,9 +10,10 @@ import Link from "next/link";
 
 interface DashboardHeaderProps {
   onMenuClick?: () => void;
+  isOpen?: boolean;
 }
 
-export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
+export function DashboardHeader({ onMenuClick, isOpen = false }: DashboardHeaderProps) {
   const { user } = useAuth();
   const userName = user?.name || "Customer";
 
@@ -28,6 +29,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         className="md:hidden text-slate-500 h-9 w-9 p-0" 
         onClick={onMenuClick}
         aria-label="Toggle navigation menu"
+        aria-expanded={isOpen}
       >
         <Menu className="h-5 w-5" />
       </Button>
@@ -50,19 +52,19 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         </div>
 
         {/* Search Icon for Mobile */}
-        <Button variant="ghost" size="sm" className="lg:hidden text-slate-500 h-9 w-9 p-0">
+        <Button variant="ghost" size="sm" className="lg:hidden text-slate-500 h-9 w-9 p-0" aria-label="Search products">
           <Search className="h-5 w-5" />
         </Button>
 
         {/* Notifications Placeholder */}
-        <Button variant="ghost" size="sm" className="relative text-slate-500 h-9 w-9 p-0">
+        <Button variant="ghost" size="sm" className="relative text-slate-500 h-9 w-9 p-0" aria-label="Notifications">
           <Bell className="h-5 w-5" />
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-amber-500" />
         </Button>
 
         {/* Cart */}
-        <Link href="/customer/cart" passHref>
-          <Button variant="ghost" size="sm" className="relative text-slate-500 h-9 w-9 p-0">
+        <Link href="/customer/cart" passHref aria-label={`View cart, ${cartCount} items`}>
+          <Button variant="ghost" size="sm" className="relative text-slate-500 h-9 w-9 p-0" tabIndex={-1}>
             <ShoppingCart className="h-5 w-5" />
             {!isLoading && cartCount !== null && cartCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white">
@@ -78,8 +80,8 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         </Link>
 
         {/* Profile Avatar */}
-        <Link href="/customer/profile">
-          <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center border border-slate-300 overflow-hidden cursor-pointer hover:border-primary-400 transition-colors">
+        <Link href="/customer/profile" aria-label="View profile">
+          <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center border border-slate-300 overflow-hidden hover:border-primary-400 transition-colors">
             <User className="h-4 w-4 text-slate-500" />
           </div>
         </Link>
