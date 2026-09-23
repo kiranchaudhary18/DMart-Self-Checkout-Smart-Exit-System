@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { handleApiError } from './errors';
 
-// Get base URL from environment variables, fallback to localhost for safety during dev
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+// Get base URL strictly from environment variables.
+const baseURL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!baseURL) {
+  console.warn("NEXT_PUBLIC_API_URL is not defined in the environment variables.");
+}
 
 /**
  * Global Axios Instance for Backend Communication
