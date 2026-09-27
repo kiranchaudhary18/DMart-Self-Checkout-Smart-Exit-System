@@ -37,9 +37,9 @@ export default function PaymentPage() {
       router.push(`/customer/payment/success?order_number=${orderNumber}`);
       
     } catch (err: any) {
-      console.error("Verification failed:", err);
+      console.error("Verification failed FULL ERROR:", err);
       setPaymentState("FAILED");
-      const msg = err.response?.data?.message || "Payment verification is pending or could not be completed.";
+      const msg = err.message || err.response?.data?.message || "Payment verification is pending or could not be completed.";
       router.push(`/customer/payment/failed?reason=${encodeURIComponent(msg)}`);
     }
   };
@@ -58,7 +58,6 @@ export default function PaymentPage() {
       const rzpData = await paymentService.createRazorpayOrder({ order_number: orderNumber });
       setAmount(rzpData.amount);
       
-      // 2. Open Razorpay Widget
       const options: RazorpayOptions = {
         key: rzpData.razorpay_key_id,
         amount: rzpData.amount, // amount in paisa

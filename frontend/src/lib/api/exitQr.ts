@@ -8,7 +8,7 @@ export const exitQrService = {
    * Maps to POST /api/exit_verification/generate/
    */
   async generateExitToken(orderNumber: string): Promise<ExitPass> {
-    const response = await apiClient.post<any>("/exit_verification/generate/", {
+    const response = await apiClient.post<any>("/exit-verification/generate/", {
       order_number: orderNumber
     });
     
@@ -27,10 +27,10 @@ export const exitQrService = {
 
   /**
    * Fetches the current status of an exit token for a specific order.
-   * Maps to GET /api/exit_verification/<order_number>/
+   * Maps to GET /api/exit-verification/<order_number>/
    */
   async getExitTokenStatus(orderNumber: string): Promise<ExitPass> {
-    const response = await apiClient.get<any>(`/exit_verification/${orderNumber}/`);
+    const response = await apiClient.get<any>(`/exit-verification/${orderNumber}/`);
     
     const data = response.data.data;
     
@@ -48,49 +48,27 @@ export const exitQrService = {
    * Helper to find the latest eligible paid order and get its QR.
    * This bridges the gap when the user directly visits /exit-qr.
    */
-  async getLatestEligibleExitPass(): Promise<ExitPassResponse> {
+    async getAllEligibleExitPasses(): Promise<{ passes: ExitPass[], message?: string }> {
     try {
-      // 1. Fetch recent orders
       const recentOrders = await ordersService.getRecentOrders();
+      const paidOrders = recentOrders.filter(order => order.payment_status === "PAID");
+      if (paidOrders.length === 0) return { passes: [], message: "No eligible paid orders found." };
       
-      // 2. Find the most recent PAID order
-      // Assuming orders are sorted newest first.
-      const latestPaidOrder = recentOrders.find(
-        (order) => order.payment_status === "PAID"
-      );
-
-      if (!latestPaidOrder) {
-        return { pass: null, message: "No eligible paid orders found." };
-      }
-
-      // 3. Try to get its token status first
-      try {
-        const statusPass = await this.getExitTokenStatus(latestPaidOrder.order_number);
-        
-        // If it's active but we don't have the QR data here (since status doesn't return it),
-        // we might try to call generate again. However, backend won't return qr_data on subsequent generates.
-        // For this frontend assignment, we will rely on localStorage to persist the QR data across refreshes,
-        // or just accept that if they refresh, the backend requires them to have saved it.
-        // Let's attempt to generate to get the token if possible.
-        
-        if (statusPass.status === "ACTIVE") {
-           // We have an active token. We can't fetch the QR string again from the API if it's already generated.
-           // We'll return it, but the UI might need to handle empty qr_data if it was lost from memory.
-           return { pass: statusPass };
+      const passes: ExitPass[] = [];
+      for (const order of paidOrders) {
+        try {
+          const statusPass = await this.getExitTokenStatus(order.order_number);
+          if (statusPass.status === "ACTIVE") passes.push(statusPass);
+        } catch (err: any) {
+          if (err.response?.status === 404) {
+             const newPass = await this.generateExitToken(order.order_number);
+             passes.push(newPass);
+          }
         }
-        
-        return { pass: statusPass };
-      } catch (err: any) {
-        // If 404 (no token found), we should generate a new one.
-        if (err.response?.status === 404) {
-           const newPass = await this.generateExitToken(latestPaidOrder.order_number);
-           return { pass: newPass };
-        }
-        throw err;
       }
-
-    } catch (error: any) {
-      throw error;
-    }
+      
+      if (passes.length === 0) return { passes: [], message: "All your paid orders have already been checked out." };
+      return { passes };
+    } catch (error: any) { throw error; }
   }
 };

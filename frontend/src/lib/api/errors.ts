@@ -37,24 +37,24 @@ export const handleApiError = (error: unknown): ApiError => {
               customMessage = data.message;
             }
           }
-          return { message: customMessage, code: '400', ...data };
+          return { code: '400', ...data, message: customMessage };
         }
         case 401:
-          return { message: 'Unauthorized. Please login again.', code: '401', ...data };
+          return { code: '401', ...data, message: 'Unauthorized. Please login again.' };
         case 403:
-          return { message: 'Forbidden. You do not have permission to access this resource.', code: '403', ...data };
+          return { code: '403', ...data, message: 'Forbidden. You do not have permission to access this resource.' };
         case 404:
-          return { message: 'Resource not found.', code: '404', ...data };
+          return { code: '404', ...data, message: 'Resource not found.' };
         case 409:
-          return { message: 'Conflict. The resource already exists or state is invalid.', code: '409', ...data };
+          return { code: '409', ...data, message: 'Conflict. The resource already exists or state is invalid.' };
         case 422:
-          return { message: 'Validation Error.', code: '422', ...data };
+          return { code: '422', ...data, message: 'Validation Error.' };
         case 429:
-          return { message: 'Too Many Requests. Please try again later.', code: '429', ...data };
+          return { code: '429', ...data, message: 'Too Many Requests. Please try again later.' };
         case 500:
           return { message: 'Internal Server Error. Our team has been notified.', code: '500' };
         default:
-          return { message: data?.message || 'An unexpected server error occurred.', code: String(status), ...data };
+          return { code: String(status), ...data, message: data?.message || 'An unexpected server error occurred.' };
       }
     }
     

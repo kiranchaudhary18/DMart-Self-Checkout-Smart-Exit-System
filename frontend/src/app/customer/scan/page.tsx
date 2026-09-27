@@ -84,7 +84,9 @@ export default function ScanPage() {
   const renderProductSuccess = () => {
     if (!product) return null;
     
-    const isOutOfStock = product.stock_quantity <= 0;
+    const currentStock = product.current_stock ?? 0;
+    const isOutOfStock = currentStock <= 0;
+    const isInactive = !product.is_active;
     
     const categoryName = typeof product.category === 'object' && product.category?.name 
       ? product.category.name 
@@ -110,12 +112,10 @@ export default function ScanPage() {
         <div className="flex flex-col items-center text-center">
           <div className="relative aspect-square w-48 bg-slate-50 rounded-xl mb-6 flex items-center justify-center p-4 border border-slate-100">
             {product.image ? (
-              <Image 
+              <img 
                 src={product.image} 
                 alt={product.name} 
-                fill
-                className="object-contain p-4 mix-blend-multiply"
-                sizes="192px"
+                className="w-full h-full object-contain p-4 mix-blend-multiply"
               />
             ) : (
               <div className="flex flex-col items-center justify-center text-slate-300">
@@ -124,13 +124,19 @@ export default function ScanPage() {
               </div>
             )}
             
-            {isOutOfStock && (
+            {isOutOfStock ? (
               <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center rounded-xl">
                 <Badge variant="error" className="px-3 py-1.5 text-sm font-bold shadow-sm">
                   OUT OF STOCK
                 </Badge>
               </div>
-            )}
+            ) : isInactive ? (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center rounded-xl">
+                <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-300 px-3 py-1.5 text-sm font-bold shadow-sm">
+                  UNAVAILABLE
+                </Badge>
+              </div>
+            ) : null}
           </div>
           
           <div className="mb-2">
@@ -151,7 +157,7 @@ export default function ScanPage() {
             <Button 
               className="w-full bg-primary-600 hover:bg-primary-700 text-white h-12 text-base shadow-sm"
               onClick={handleAddToCart}
-              disabled={isOutOfStock || isAddingToCart}
+              disabled={isOutOfStock || isInactive || isAddingToCart}
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
               {isAddingToCart ? "Adding..." : "Add to Cart"}

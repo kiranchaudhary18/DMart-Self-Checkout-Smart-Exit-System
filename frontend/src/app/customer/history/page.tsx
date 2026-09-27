@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { CustomerDashboardLayout } from "@/components/layout/CustomerDashboardLayout";
 import { ordersService } from "@/lib/api/orders";
 import { Order } from "@/types/dashboard";
 import { OrderList } from "@/components/orders/OrderList";
@@ -64,6 +65,7 @@ export default function OrderHistoryPage() {
 
   return (
     <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+      <CustomerDashboardLayout>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         
         {/* Header */}
@@ -125,6 +127,7 @@ export default function OrderHistoryPage() {
         )}
         
       </div>
+      </CustomerDashboardLayout>
     </ProtectedRoute>
   );
 }

@@ -43,6 +43,9 @@ export function handleApiError(error: any): string {
   } else if (error.request) {
     // The request was made but no response was received
     return "Network error. Please check your connection.";
+  } else if (error && error.message) {
+    // Handle pre-parsed ApiError objects from client interceptor
+    return error.message;
   } else {
     // Something happened in setting up the request that triggered an Error
     return "Failed to process the request.";

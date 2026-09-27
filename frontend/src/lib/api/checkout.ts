@@ -7,8 +7,8 @@ export const checkoutService = {
    * GET /api/cart/summary/
    */
   async getCheckoutSummary(): Promise<CheckoutSummary> {
-    const response = await apiClient.get<CheckoutSummary>("/cart/summary/");
-    return response.data;
+    const response = await apiClient.get("/cart/summary/");
+    return response.data.data;
   },
 
   /**

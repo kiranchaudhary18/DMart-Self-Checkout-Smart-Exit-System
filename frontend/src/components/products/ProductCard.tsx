@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Eye, PackageX, Barcode } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/hooks/useToast";
+import { Loader2 } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -13,21 +16,39 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, categories }: ProductCardProps) {
+  const { addItem } = useCart();
+  const { success: toastSuccess, error: toastError } = useToast();
+  const [isAdding, setIsAdding] = React.useState(false);
+
   const categoryId = typeof product.category === 'object' ? product.category?.id : product.category;
   const categoryName = categories.find(c => c.id === categoryId)?.name || "Uncategorized";
   
-  const isOutOfStock = product.stock_quantity <= 0;
+  const currentStock = product.current_stock ?? 0;
+  const isOutOfStock = currentStock <= 0;
+  const isInactive = !product.is_active;
+
+  const handleAddToCart = async () => {
+    if (isOutOfStock || isInactive || isAdding) return;
+    
+    setIsAdding(true);
+    try {
+      await addItem({ product_id: product.id, quantity: 1 });
+      toastSuccess(`Added ${product.name} to cart`);
+    } catch (err: any) {
+      toastError(err.message || "Failed to add to cart");
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   return (
     <Card className="flex flex-col h-full overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 group bg-white">
       <div className="relative aspect-square w-full bg-slate-50 flex items-center justify-center p-4">
         {product.image ? (
-          <Image 
+          <img 
             src={product.image} 
             alt={product.name} 
-            fill
-            className="object-contain p-4 mix-blend-multiply"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="w-full h-full object-contain p-4 mix-blend-multiply"
           />
         ) : (
           <div className="flex flex-col items-center justify-center text-slate-300">
@@ -36,13 +57,19 @@ export function ProductCard({ product, categories }: ProductCardProps) {
           </div>
         )}
         
-        {isOutOfStock && (
+        {isOutOfStock ? (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
             <Badge variant="error" className="px-3 py-1 text-sm font-bold shadow-sm">
               OUT OF STOCK
             </Badge>
           </div>
-        )}
+        ) : isInactive ? (
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+            <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-300 px-3 py-1 text-sm font-bold shadow-sm">
+              UNAVAILABLE
+            </Badge>
+          </div>
+        ) : null}
       </div>
 
       <CardHeader className="p-4 pb-0 flex-none">
@@ -63,10 +90,10 @@ export function ProductCard({ product, categories }: ProductCardProps) {
           <span className="text-xl font-bold text-slate-900">₹{product.price}</span>
         </div>
         <p className="text-xs text-slate-500 mt-1">
-          {isOutOfStock ? (
+          {isOutOfStock || isInactive ? (
             <span className="text-red-500 font-medium">Currently unavailable</span>
           ) : (
-            <span className="text-green-600 font-medium">{product.stock_quantity} in stock</span>
+            <span className="text-green-600 font-medium">{currentStock} in stock</span>
           )}
         </p>
       </CardContent>
@@ -81,10 +108,15 @@ export function ProductCard({ product, categories }: ProductCardProps) {
         </Link>
         <Button 
           className="flex-1 bg-primary-600 hover:bg-primary-700 text-white"  
-          disabled={isOutOfStock}
+          disabled={isOutOfStock || isInactive || isAdding}
+          onClick={handleAddToCart}
           aria-label={`Add ${product.name} to cart`}
         >
-          <ShoppingCart className="h-4 w-4 mr-2" aria-hidden="true" />
+          {isAdding ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
+          ) : (
+            <ShoppingCart className="h-4 w-4 mr-2" aria-hidden="true" />
+          )}
           Add
         </Button>
       </div>

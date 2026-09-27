@@ -462,14 +462,14 @@ export default function SecurityScanPage() {
                       </div>
                       <h3 className="text-lg font-semibold text-slate-900">Manual Entry</h3>
                       <p className="text-sm text-slate-500">
-                        Enter the fallback token code located beneath the customer's QR code.
+                        Enter the Order Number from the customer's receipt (e.g. DMART-...)
                       </p>
                     </div>
                     
                     <div className="space-y-4">
                       <Input
                         type="text"
-                        placeholder="e.g. A8X9-K2M4"
+                        placeholder="e.g. DMART-XXXXXX"
                         value={manualInput}
                         onChange={(e) => setManualInput(e.target.value.toUpperCase())}
                         className="text-center font-mono text-lg py-6 uppercase tracking-wider"
@@ -479,7 +479,7 @@ export default function SecurityScanPage() {
                         disabled={!manualInput.trim()}
                         className="w-full bg-slate-900 hover:bg-slate-800"
                       >
-                        Capture Token
+                        Verify Order
                       </Button>
                     </div>
                   </form>

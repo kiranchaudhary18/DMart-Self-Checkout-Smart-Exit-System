@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { CustomerDashboardLayout } from "@/components/layout/CustomerDashboardLayout";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/hooks/useAuth";
 import { CartList } from "@/components/cart/CartList";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { CartSkeleton } from "@/components/cart/CartSkeleton";
@@ -14,6 +16,7 @@ import { handleApiError } from "@/lib/utils/errorHandler";
 import { ErrorState } from "@/components/shared/ErrorState";
 
 export default function CartPage() {
+  const { user, isLoading: authIsLoading } = useAuth();
   const { cart, isLoading, error, fetchCart, updateItemQuantity, removeItem, clearCart } = useCart();
   const { success, error: toastError, info } = useToast();
   const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
@@ -61,7 +64,8 @@ export default function CartPage() {
   if (isLoading) {
     return (
       <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <CustomerDashboardLayout>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex items-center gap-3 mb-8">
             <div className="p-2.5 bg-primary-100 text-primary-700 rounded-xl">
               <ShoppingCart className="h-6 w-6" />
@@ -73,6 +77,7 @@ export default function CartPage() {
           </div>
           <CartSkeleton />
         </div>
+        </CustomerDashboardLayout>
       </ProtectedRoute>
     );
   }
@@ -80,6 +85,7 @@ export default function CartPage() {
   if (error) {
     return (
       <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+        <CustomerDashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <ErrorState 
             title="Unable to load your cart"
@@ -87,6 +93,7 @@ export default function CartPage() {
             onRetry={fetchCart}
           />
         </div>
+        </CustomerDashboardLayout>
       </ProtectedRoute>
     );
   }
@@ -99,6 +106,7 @@ export default function CartPage() {
 
   return (
     <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+      <CustomerDashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         
         {/* Header */}
@@ -127,7 +135,9 @@ export default function CartPage() {
 
 
         {/* Content */}
-        {items.length === 0 ? (
+        {authIsLoading || isLoading ? (
+          <CartSkeleton />
+        ) : items.length === 0 ? (
           <EmptyCart />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative items-start">
@@ -150,6 +160,7 @@ export default function CartPage() {
         )}
         
       </div>
+      </CustomerDashboardLayout>
     </ProtectedRoute>
   );
 }

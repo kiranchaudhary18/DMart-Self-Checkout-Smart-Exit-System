@@ -1,8 +1,11 @@
 "use client";
 import React from 'react';
-import { Menu, User, Bell } from 'lucide-react';
+import Link from 'next/link';
+import { Menu, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import Image from 'next/image';
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -10,6 +13,7 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ onMenuClick, isOpen = false }: AdminHeaderProps) {
+  const { user } = useAuth();
   const pathname = usePathname();
 
   // Helper to get a nice title based on route
@@ -45,12 +49,19 @@ export function AdminHeader({ onMenuClick, isOpen = false }: AdminHeaderProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" className="w-9 h-9 p-0 text-slate-500 rounded-full hover:bg-slate-100" aria-label="Notifications">
-          <Bell className="w-5 h-5" />
-        </Button>
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 ml-2">
-          <User className="w-4 h-4" />
-        </div>
+        <Link href="/admin/profile" className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 ml-2 hover:bg-blue-200 transition-colors overflow-hidden">
+          {user?.profile_picture ? (
+            <Image 
+              src={user.profile_picture} 
+              alt="Admin" 
+              width={32} 
+              height={32} 
+              className="w-full h-full object-cover" 
+            />
+          ) : (
+            <User className="w-4 h-4" />
+          )}
+        </Link>
       </div>
     </header>
   );

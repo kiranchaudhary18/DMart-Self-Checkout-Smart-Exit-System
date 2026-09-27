@@ -18,6 +18,8 @@ export interface Product {
   gst_percentage: number;
   unit: string;
   is_active: boolean;
+  current_stock?: number;
+  initial_stock?: number;
 }
 
 export interface ProductPagination {

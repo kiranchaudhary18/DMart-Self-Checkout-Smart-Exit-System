@@ -7,6 +7,7 @@ export interface User {
   role: UserRole;
   is_active: boolean;
   name?: string; // Optional depending on how the backend handles names
+  profile_picture?: string | null;
 }
 
 export interface AuthTokens {

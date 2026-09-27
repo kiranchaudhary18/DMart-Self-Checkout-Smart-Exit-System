@@ -17,7 +17,9 @@ import {
   ChevronRight,
   ArrowUpDown,
   AlertTriangle,
-  Loader2
+  Loader2,
+  FolderPlus,
+  Layers
 } from "lucide-react";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -27,7 +29,9 @@ import {
   deleteAdminProduct, 
   createAdminProduct, 
   updateAdminProduct,
-  getCategories 
+  getCategories,
+  createCategory,
+  updateCategory
 } from "@/lib/api/adminProducts";
 import { useToast } from "@/hooks/useToast";
 import { handleApiError } from "@/lib/utils/errorHandler";
@@ -54,20 +58,36 @@ export default function AdminProductsPage() {
   // Form State
   const [formData, setFormData] = useState<Partial<Product>>({
     name: "", description: "", barcode: "", sku: "", price: 0, 
-    stock_quantity: 0, gst_percentage: 0, unit: "PIECE", is_active: true
+    initial_stock: 0, gst_percentage: 0, unit: "PIECE", is_active: true
   });
+  const [categorySearch, setCategorySearch] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   const [isSaving, setIsSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Category Management State
+  const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
+  const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [categoryForm, setCategoryForm] = useState<Partial<Category>>({ name: "", description: "", is_active: true });
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+
   const loadCategories = async () => {
+    setIsCategoriesLoading(true);
+    setCategoriesError(null);
     try {
       const data = await getCategories();
       setCategories(data);
     } catch (err) {
+      setCategoriesError("Failed to load categories");
       console.error("Failed to load categories:", err);
+    } finally {
+      setIsCategoriesLoading(false);
     }
   };
 
@@ -112,8 +132,9 @@ export default function AdminProductsPage() {
     setSelectedProduct(null);
     setFormData({
       name: "", description: "", barcode: "", sku: "", price: 0, 
-      stock_quantity: 0, gst_percentage: 0, unit: "PIECE", is_active: true
+      initial_stock: 0, gst_percentage: 0, unit: "PIECE", is_active: true
     });
+    setCategorySearch("");
     setImageFile(null);
     setImagePreview(null);
     setFormError(null);
@@ -126,6 +147,7 @@ export default function AdminProductsPage() {
       ...product,
       category: typeof product.category === 'object' ? product.category.id : product.category
     });
+    setCategorySearch(typeof product.category === 'object' ? product.category.name : (categories.find(c => c.id === product.category)?.name || ""));
     setImageFile(null);
     setImagePreview(product.image || null);
     setFormError(null);
@@ -140,6 +162,7 @@ export default function AdminProductsPage() {
   const handleCloseModals = () => {
     setIsFormOpen(false);
     setIsDeleteOpen(false);
+    setIsCategoryManagerOpen(false);
     setSelectedProduct(null);
   };
 
@@ -153,27 +176,47 @@ export default function AdminProductsPage() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!categorySearch.trim()) {
+      setFormError("Category is required.");
+      return;
+    }
+    
     setIsSaving(true);
     setFormError(null);
     try {
-      let payload: Partial<Product> | FormData = formData;
+      // Handle Category Creation or Selection
+      let selectedCategoryId = null;
+      const existingCat = categories.find(c => c.name.toLowerCase() === categorySearch.trim().toLowerCase());
+      
+      if (existingCat) {
+        selectedCategoryId = existingCat.id;
+      } else {
+        // Create new category on the fly
+        const newCat = await createCategory({ name: categorySearch.trim(), is_active: true });
+        selectedCategoryId = newCat.id;
+        // Refresh categories list
+        loadCategories();
+      }
+
+      let finalPayload: Partial<Product> | FormData = { ...formData, category: selectedCategoryId };
 
       if (imageFile) {
         const payloadData = new FormData();
-        Object.keys(formData).forEach(key => {
-          if (formData[key as keyof Product] !== undefined && formData[key as keyof Product] !== null) {
-            payloadData.append(key, formData[key as keyof Product] as string);
+        const basePayload = { ...formData, category: selectedCategoryId };
+        Object.keys(basePayload).forEach(key => {
+          if (basePayload[key as keyof typeof basePayload] !== undefined && basePayload[key as keyof typeof basePayload] !== null) {
+            payloadData.append(key, basePayload[key as keyof typeof basePayload] as string);
           }
         });
         payloadData.append('image', imageFile);
-        payload = payloadData;
+        finalPayload = payloadData;
       }
 
       if (selectedProduct) {
-        await updateAdminProduct(selectedProduct.id, payload);
+        await updateAdminProduct(selectedProduct.id, finalPayload);
         success("Product updated successfully", "Product Saved");
       } else {
-        await createAdminProduct(payload);
+        await createAdminProduct(finalPayload);
         success("Product created successfully", "Product Saved");
       }
       setIsFormOpen(false);
@@ -199,6 +242,42 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingCategory(true);
+    setCategoryError(null);
+    try {
+      if (selectedCategory) {
+        await updateCategory(selectedCategory.id, categoryForm);
+        success("Category updated successfully", "Category Saved");
+      } else {
+        await createCategory(categoryForm);
+        success("Category created successfully", "Category Saved");
+      }
+      setIsCategoryFormOpen(false);
+      loadCategories();
+    } catch (err: any) {
+      setCategoryError(handleApiError(err) || "Failed to save category");
+      toastError(handleApiError(err), "Failed to save category");
+    } finally {
+      setIsSavingCategory(false);
+    }
+  };
+
+  const handleAddCategoryClick = () => {
+    setSelectedCategory(null);
+    setCategoryForm({ name: "", description: "", is_active: true });
+    setCategoryError(null);
+    setIsCategoryFormOpen(true);
+  };
+
+  const handleEditCategoryClick = (category: Category) => {
+    setSelectedCategory(category);
+    setCategoryForm({ ...category });
+    setCategoryError(null);
+    setIsCategoryFormOpen(true);
+  };
+
   return (
     <AdminLayout>
       <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 pb-24">
@@ -209,9 +288,11 @@ export default function AdminProductsPage() {
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Products</h1>
             <p className="text-slate-500 text-sm mt-1">Manage product catalog, pricing, and inventory levels.</p>
           </div>
-          <Button onClick={handleAddClick} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-            <Plus className="w-4 h-4 mr-2" /> Add Product
-          </Button>
+          <div className="flex gap-3">
+            <Button onClick={handleAddClick} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
+              <Plus className="w-4 h-4 mr-2" /> Add Product
+            </Button>
+          </div>
         </div>
 
         <Card className="border-slate-200 shadow-sm overflow-hidden">
@@ -298,6 +379,7 @@ export default function AdminProductsPage() {
                     <th className="p-4 cursor-pointer hover:bg-slate-100 transition-colors group">
                       <div className="flex items-center">Price <ArrowUpDown className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100" /></div>
                     </th>
+                    <th className="p-4">Stock</th>
                     <th className="p-4">Status</th>
                     <th className="p-4 pr-6 text-right">Actions</th>
                   </tr>
@@ -321,6 +403,14 @@ export default function AdminProductsPage() {
                         {typeof product.category === 'object' ? product.category.name : product.category}
                       </td>
                       <td className="p-4 font-medium">₹{Number(product.price).toFixed(2)}</td>
+                      <td className="p-4">
+                        <div className="flex items-center">
+                          <span className={`font-medium ${product.current_stock === 0 ? 'text-red-600' : 'text-slate-700'}`}>
+                            {product.current_stock ?? 0}
+                          </span>
+                          <span className="text-xs text-slate-500 ml-1"> {product.unit}</span>
+                        </div>
+                      </td>
                       <td className="p-4">
                         {product.is_active ? (
                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">Active</Badge>
@@ -495,17 +585,21 @@ export default function AdminProductsPage() {
 
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-700">Category *</label>
-                      <select 
+                      <Input 
+                        list="category-options"
                         required
-                        className="w-full p-2.5 rounded-md border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={typeof formData.category === 'object' ? formData.category?.id : formData.category || ""}
-                        onChange={e => setFormData({...formData, category: parseInt(e.target.value)})}
-                      >
-                        <option value="">Select Category</option>
+                        disabled={isCategoriesLoading || !!categoriesError}
+                        placeholder={isCategoriesLoading ? "Loading..." : "Select or type category"}
+                        className="bg-white" 
+                        value={categorySearch}
+                        onChange={e => setCategorySearch(e.target.value)}
+                      />
+                      <datalist id="category-options">
                         {categories.map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
+                          <option key={c.id} value={c.name} />
                         ))}
-                      </select>
+                      </datalist>
+                      {categoriesError && <p className="text-xs text-red-500">{categoriesError}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -514,6 +608,7 @@ export default function AdminProductsPage() {
                         required
                         type="number" 
                         step="0.01" 
+                        min="0"
                         placeholder="0.00" 
                         className="bg-white" 
                         value={formData.price}
@@ -527,11 +622,33 @@ export default function AdminProductsPage() {
                         required
                         type="number" 
                         step="0.01" 
+                        min="0"
                         placeholder="0.00" 
                         className="bg-white" 
                         value={formData.gst_percentage}
                         onChange={e => setFormData({...formData, gst_percentage: parseFloat(e.target.value)})}
                       />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700">Initial Stock {selectedProduct ? "" : "*"}</label>
+                      <Input 
+                        required={!selectedProduct}
+                        disabled={!!selectedProduct}
+                        type="number" 
+                        min="0"
+                        placeholder="0" 
+                        className="bg-white disabled:bg-slate-100" 
+                        value={selectedProduct ? (selectedProduct.current_stock ?? 0) : formData.initial_stock}
+                        onChange={e => {
+                          if (!selectedProduct) {
+                            setFormData({...formData, initial_stock: parseInt(e.target.value)})
+                          }
+                        }}
+                      />
+                      {selectedProduct && (
+                        <p className="text-xs text-slate-500">Stock can only be modified via the Inventory module for existing products.</p>
+                      )}
                     </div>
                     
                     <div className="space-y-2">

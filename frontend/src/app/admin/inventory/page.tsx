@@ -101,7 +101,7 @@ export default function AdminInventoryPage() {
     
     try {
       await adjustStock({
-        product: selectedInventory.product.id,
+        product_id: selectedInventory.product.id,
         quantity: adjQuantity,
         transaction_type: adjType,
         reason: adjReason

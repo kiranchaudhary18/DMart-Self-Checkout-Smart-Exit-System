@@ -41,26 +41,6 @@ export function DashboardHeader({ onMenuClick, isOpen = false }: DashboardHeader
       </div>
 
       <div className="flex flex-1 items-center gap-4 justify-end md:justify-end">
-        {/* Search Placeholder */}
-        <div className="relative hidden lg:flex w-full max-w-sm items-center">
-          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input 
-            type="search" 
-            placeholder="Search products..." 
-            className="w-full bg-slate-50 pl-9 rounded-full focus-visible:ring-primary-500 border-slate-200" 
-          />
-        </div>
-
-        {/* Search Icon for Mobile */}
-        <Button variant="ghost" size="sm" className="lg:hidden text-slate-500 h-9 w-9 p-0" aria-label="Search products">
-          <Search className="h-5 w-5" />
-        </Button>
-
-        {/* Notifications Placeholder */}
-        <Button variant="ghost" size="sm" className="relative text-slate-500 h-9 w-9 p-0" aria-label="Notifications">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-amber-500" />
-        </Button>
 
         {/* Cart */}
         <Link href="/customer/cart" passHref aria-label={`View cart, ${cartCount} items`}>
@@ -82,7 +62,11 @@ export function DashboardHeader({ onMenuClick, isOpen = false }: DashboardHeader
         {/* Profile Avatar */}
         <Link href="/customer/profile" aria-label="View profile">
           <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center border border-slate-300 overflow-hidden hover:border-primary-400 transition-colors">
-            <User className="h-4 w-4 text-slate-500" />
+            {user?.profile_picture ? (
+              <img src={user.profile_picture} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <User className="h-4 w-4 text-slate-500" />
+            )}
           </div>
         </Link>
       </div>

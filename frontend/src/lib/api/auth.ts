@@ -24,19 +24,18 @@ export const authService = {
 
   /**
    * Register a new Security Guard.
-   * Maps to POST /api/auth/register/
-   * 
-   * // TODO: Backend support required.
-   * Currently, the backend /api/auth/register/ endpoint does not validate or accept an 
-   * 'access_code' field. This function passes the role and code, but backend changes 
-   * are required to securely validate the access_code before creating the SECURITY role.
+   * Maps to POST /api/auth/security/register/
    */
-  async registerSecurity(data: Omit<SecuritySignupRequest, "role">): Promise<User> {
-    const payload: SecuritySignupRequest = {
-      ...data,
-      role: "SECURITY",
+  async registerSecurity(data: Omit<SecuritySignupRequest, "role"> & { confirm_password?: string }): Promise<User> {
+    const payload = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      password: data.password,
+      confirm_password: data.confirm_password || data.password,
+      access_code: data.access_code
     };
-    const response = await apiClient.post<User>("/auth/register/", payload);
+    const response = await apiClient.post<User>("/auth/security/register/", payload);
     return response.data;
   },
 
@@ -58,8 +57,9 @@ export const authService = {
    * The interceptor automatically attaches the Authorization header.
    */
   async getCurrentUser(): Promise<User> {
-    const response = await apiClient.get<User>("/auth/me/");
-    return response.data;
+    const response = await apiClient.get<any>("/auth/me/");
+    // The backend wraps the user object in a 'data' property for this endpoint
+    return response.data.data ? response.data.data : response.data;
   },
 
   /**

@@ -15,6 +15,7 @@ export interface CartItem {
   id: number;
   product: number; // ID of the product
   product_name: string;
+  product_image?: string;
   barcode: string;
   quantity: number;
   unit_price: string;
@@ -33,6 +34,7 @@ export interface OrderItem {
   id: number;
   product: number;
   product_name: string;
+  product_image?: string;
   barcode: string;
   quantity: number;
   unit_price: string;

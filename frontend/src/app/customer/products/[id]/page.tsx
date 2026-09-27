@@ -75,8 +75,7 @@ export default function ProductDetailsPage() {
   };
 
   const handleIncrease = () => {
-    // Arbitrary limit for UI purposes, could be tied to stock
-    const limit = product?.stock_quantity || 10;
+    const limit = product?.current_stock ?? 0;
     if (quantity < limit) setQuantity(quantity + 1);
   };
 
@@ -155,7 +154,9 @@ export default function ProductDetailsPage() {
     }
   }
 
-  const isOutOfStock = product.stock_quantity <= 0;
+  const currentStock = product.current_stock ?? 0;
+  const isOutOfStock = currentStock <= 0;
+  const isInactive = !product.is_active;
 
   return (
     <ProtectedRoute allowedRoles={["CUSTOMER"]}>
@@ -187,13 +188,10 @@ export default function ProductDetailsPage() {
           {/* Image Section */}
           <div className="relative aspect-square w-full bg-white border border-slate-200 rounded-2xl flex items-center justify-center p-8 shadow-sm overflow-hidden">
             {product.image ? (
-              <Image 
+              <img 
                 src={product.image} 
                 alt={product.name} 
-                fill
-                className="object-contain p-8 mix-blend-multiply"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
+                className="w-full h-full object-contain p-8 mix-blend-multiply"
               />
             ) : (
               <div className="flex flex-col items-center justify-center text-slate-300">
@@ -243,9 +241,11 @@ export default function ProductDetailsPage() {
               </div>
               <div className="text-sm font-medium">
                 <span className="text-slate-500 mr-2">Stock:</span>
-                <span className={isOutOfStock ? "text-red-600 font-bold" : "text-green-600 font-bold"}>
-                  {product.stock_quantity} available
-                </span>
+                {isOutOfStock || isInactive ? (
+                  <span className="text-red-600 font-bold">Unavailable</span>
+                ) : (
+                  <span className="text-green-600 font-bold">{currentStock} available</span>
+                )}
               </div>
             </div>
 
@@ -256,7 +256,7 @@ export default function ProductDetailsPage() {
                   <Button
                     variant="ghost"
                     className="h-10 w-10 p-0 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                    disabled={quantity <= 1 || isOutOfStock || isAddingToCart}
+                    disabled={quantity <= 1 || isOutOfStock || isInactive || isAddingToCart}
                     onClick={handleDecrease}
                   >
                     <Minus className="h-5 w-5" />
@@ -267,7 +267,7 @@ export default function ProductDetailsPage() {
                   <Button
                     variant="ghost"
                     className="h-10 w-10 p-0 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                    disabled={quantity >= product.stock_quantity || isOutOfStock || isAddingToCart}
+                    disabled={quantity >= currentStock || isOutOfStock || isInactive || isAddingToCart}
                     onClick={handleIncrease}
                   >
                     <Plus className="h-5 w-5" />
@@ -276,7 +276,7 @@ export default function ProductDetailsPage() {
 
                 <Button 
                   className="w-full sm:flex-1 h-14 text-lg font-bold bg-primary-600 hover:bg-primary-700 text-white shadow-sm"
-                  disabled={isOutOfStock || isAddingToCart}
+                  disabled={isOutOfStock || isInactive || isAddingToCart}
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />

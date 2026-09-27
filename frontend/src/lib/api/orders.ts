@@ -7,12 +7,8 @@ export const ordersService = {
    * Maps to GET /api/orders/
    */
   async getRecentOrders(): Promise<Order[]> {
-    const response = await apiClient.get<any>("/orders/");
-    // Handle DRF PageNumberPagination
-    if (response.data && Array.isArray(response.data.results)) {
-      return response.data.results;
-    }
-    return Array.isArray(response.data) ? response.data : [];
+    const response = await apiClient.get<{ status: string; message: string; data: Order[] }>("/orders/");
+    return response.data.data || [];
   },
 
   /**

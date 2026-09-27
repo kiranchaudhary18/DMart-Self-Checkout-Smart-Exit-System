@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { handleApiError } from './errors';
 
-// Get base URL strictly from environment variables.
-const baseURL = process.env.NEXT_PUBLIC_API_URL;
+// Get base URL strictly from environment variables, fallback for dev stability
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
-if (!baseURL) {
-  console.warn("NEXT_PUBLIC_API_URL is not defined in the environment variables.");
+if (!process.env.NEXT_PUBLIC_API_URL) {
+  console.warn("NEXT_PUBLIC_API_URL is not defined in the environment variables. Using fallback.");
 }
 
 /**
@@ -90,6 +90,12 @@ apiClient.interceptors.response.use(
 
     // We will parse the error to ensure no backend traces leak to the UI
     const parsedError = handleApiError(error);
-    return Promise.reject(parsedError);
+    const errObj: any = new Error(parsedError.message);
+    Object.assign(errObj, parsedError);
+    if (error.response) {
+      errObj.response = error.response;
+      errObj.status = error.response.status;
+    }
+    return Promise.reject(errObj);
   }
 );

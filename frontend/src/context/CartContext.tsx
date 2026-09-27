@@ -35,7 +35,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      setIsLoading(true);
+      setCart((prevCart) => {
+        if (!prevCart) setIsLoading(true);
+        return prevCart;
+      });
       setError(null);
       const data = await cartService.getCart();
       setCart(data);

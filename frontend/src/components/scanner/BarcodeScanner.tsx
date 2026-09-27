@@ -22,65 +22,91 @@ export function BarcodeScanner({ onScan, onManualEntryRequested }: BarcodeScanne
   const [scannedCode, setScannedCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const startScanning = async () => {
-    setIsInitializing(true);
-    setError(null);
-    setScannedCode(null);
-    
-    try {
-      // Prompt for camera permissions explicitly first if we haven't already
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      setHasPermission(true);
-      
-      const reader = new BrowserMultiFormatReader();
-      
-      if (videoRef.current) {
-        const scannerControls = await reader.decodeFromVideoElement(videoRef.current, (result: Result | undefined, err, controls) => {
-          if (result && !scannedCode) {
-            const now = Date.now();
-            if (now - lastScannedRef.current < 2000) return; // 2 second cooldown
-            
-            const barcodeText = result.getText();
-            lastScannedRef.current = now;
-            setScannedCode(barcodeText);
-            controls.stop();
-            setIsScanning(false);
-            
-            // Provide subtle vibration feedback if supported by browser
-            if (typeof navigator !== 'undefined' && navigator.vibrate) {
-              navigator.vibrate(200);
-            }
-            
-            // Wait a brief moment so the user sees the success state, then callback
-            setTimeout(() => {
-              onScan(barcodeText);
-            }, 800);
-          }
-        });
-        
-        setControls(scannerControls);
-        setIsScanning(true);
-      }
-    } catch (err: any) {
-      console.error("Camera access error:", err);
-      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-        setHasPermission(false);
-      } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
-        setError("No camera found on this device.");
-      } else {
-        setError("An error occurred while accessing the camera. Please try again.");
-      }
-    } finally {
-      setIsInitializing(false);
-    }
-  };
-
   useEffect(() => {
+    let isMounted = true;
+    let localControls: IScannerControls | null = null;
+    let dummyStream: MediaStream | null = null;
+
+    const startScanning = async () => {
+      if (!isMounted) return;
+      setIsInitializing(true);
+      setError(null);
+      setScannedCode(null);
+      
+      try {
+        // Prompt for camera permissions explicitly first if we haven't already
+        dummyStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        if (!isMounted) return;
+        setHasPermission(true);
+        
+        // Stop the dummy stream tracks immediately so zxing can take over without device lock conflicts
+        dummyStream.getTracks().forEach(track => track.stop());
+        
+        const reader = new BrowserMultiFormatReader();
+        
+        if (videoRef.current && isMounted) {
+          const scannerControls = await reader.decodeFromVideoElement(videoRef.current, (result: Result | undefined, err, controls) => {
+            if (!isMounted) {
+              controls.stop();
+              return;
+            }
+            if (result && !scannedCode) {
+              const now = Date.now();
+              if (now - lastScannedRef.current < 2000) return; // 2 second cooldown
+              
+              const barcodeText = result.getText();
+              lastScannedRef.current = now;
+              setScannedCode(barcodeText);
+              controls.stop();
+              setIsScanning(false);
+              
+              // Provide subtle vibration feedback if supported by browser
+              if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                navigator.vibrate(200);
+              }
+              
+              // Wait a brief moment so the user sees the success state, then callback
+              setTimeout(() => {
+                if (isMounted) onScan(barcodeText);
+              }, 800);
+            }
+          });
+          
+          if (isMounted) {
+            localControls = scannerControls;
+            setControls(scannerControls);
+            setIsScanning(true);
+          } else {
+            scannerControls.stop();
+          }
+        }
+      } catch (err: any) {
+        if (!isMounted) return;
+        console.error("Camera access error:", err);
+        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+          setHasPermission(false);
+        } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+          setError("No camera found on this device.");
+        } else {
+          setError("An error occurred while accessing the camera. Please try again.");
+        }
+      } finally {
+        if (isMounted) setIsInitializing(false);
+      }
+    };
+
     // Initial start
     startScanning();
 
     // Cleanup on unmount
     return () => {
+      isMounted = false;
+      if (dummyStream) {
+        dummyStream.getTracks().forEach(track => track.stop());
+      }
+      if (localControls) {
+        localControls.stop();
+      }
       if (controls) {
         controls.stop();
       }
@@ -90,7 +116,9 @@ export function BarcodeScanner({ onScan, onManualEntryRequested }: BarcodeScanne
   const handleRetry = () => {
     if (controls) controls.stop();
     setHasPermission(null);
-    startScanning();
+    // Note: To truly retry, we need to trigger the effect again. 
+    // We can do this by forcing a remount from the parent, or window.location.reload()
+    window.location.reload();
   };
 
   if (hasPermission === false) {

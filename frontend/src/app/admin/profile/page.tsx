@@ -1,20 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { CustomerDashboardLayout } from "@/components/layout/CustomerDashboardLayout";
+import { AdminLayout } from "@/components/layout/AdminLayout";
 import { UserProfile, UpdateProfileRequest } from "@/types/profile";
 import { profileService } from "@/lib/api/profile";
 import { removeTokens } from "@/lib/auth/token";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, CheckCircle2, AlertCircle, Loader2, User, Mail, Phone, Lock, Camera } from "lucide-react";
+import { Loader2, User, Camera, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 import { useAuth } from "@/hooks/useAuth";
 import { handleApiError } from "@/lib/utils/errorHandler";
 
-export default function ProfilePage() {
+export default function AdminProfilePage() {
   const router = useRouter();
   const { refreshUser } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -23,7 +22,6 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<UpdateProfileRequest>({
     name: "",
-    phone: "",
     profile_picture: null,
   });
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -55,7 +53,6 @@ export default function ProfilePage() {
     if (!isEditing && profile) {
       setEditForm({
         name: profile.name,
-        phone: profile.phone,
         profile_picture: null,
       });
       setPreviewImage(profile.profile_picture || null);
@@ -85,7 +82,7 @@ export default function ProfilePage() {
       const updated = await profileService.updateProfile(editForm);
       setProfile(updated);
       await refreshUser(); // Update global auth context for DashboardHeader avatar
-      success("Your profile has been updated successfully.", "Profile Updated");
+      success("Admin profile has been updated successfully.", "Profile Updated");
       setIsEditing(false);
     } catch (err: any) {
       console.error("Update profile failed:", err);
@@ -100,47 +97,32 @@ export default function ProfilePage() {
     }
   };
 
-  const handleLogout = () => {
-    removeTokens();
-    router.push("/login");
-  };
-
   if (isLoading) {
     return (
-      <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-      <CustomerDashboardLayout>
-        <div className="min-h-screen flex items-center justify-center">
+      <AdminLayout>
+        <div className="min-h-full flex items-center justify-center p-8">
           <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
         </div>
-      </CustomerDashboardLayout>
-    </ProtectedRoute>
-  );
-}
+      </AdminLayout>
+    );
+  }
 
   return (
-    <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-      <CustomerDashboardLayout>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <AdminLayout>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 pb-20 md:pb-8 h-full overflow-y-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
-            <p className="text-slate-500 mt-1 text-sm">Manage your personal information and security.</p>
+            <h1 className="text-2xl font-bold text-slate-900">Admin Profile</h1>
+            <p className="text-slate-500 mt-1 text-sm">Manage your administrator details.</p>
           </div>
-          <Button variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
         </div>
 
-
-
         <div className="space-y-6">
-          {/* Personal Information Card */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-                <User className="h-4 w-4 text-slate-400" />
-                Personal Information
+                <Shield className="h-4 w-4 text-blue-500" />
+                Administrator Details
               </h2>
               {!isEditing && (
                 <Button variant="outline" size="sm" onClick={handleEditToggle}>Edit Profile</Button>
@@ -179,17 +161,8 @@ export default function ProfilePage() {
                       />
                     </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Phone Number</label>
-                    <Input 
-                      value={editForm.phone} 
-                      onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                      disabled={isSaving}
-                    />
-                  </div>
 
-                  <div className="space-y-2 opacity-60">
+                  <div className="space-y-2 opacity-60 pt-2">
                     <label className="text-sm font-medium text-slate-700">Email Address (Cannot be changed)</label>
                     <Input value={profile?.email || ""} disabled />
                   </div>
@@ -212,31 +185,18 @@ export default function ProfilePage() {
                         <User className="h-10 w-10 text-slate-400" />
                       )}
                     </div>
-                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 mt-2">
+                    <div className="flex-1 grid grid-cols-1 gap-6 mt-2">
                       <div>
                         <p className="text-sm text-slate-500 mb-1">Full Name</p>
                         <p className="font-medium text-slate-900">{profile?.name}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-slate-500 mb-1">Customer ID</p>
-                        <p className="font-medium text-slate-900">{profile?.id}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border-t border-slate-100 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5"><Mail className="h-4 w-4 text-slate-400" /></div>
-                      <div>
                         <p className="text-sm text-slate-500 mb-1">Email Address</p>
                         <p className="font-medium text-slate-900">{profile?.email}</p>
                       </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5"><Phone className="h-4 w-4 text-slate-400" /></div>
                       <div>
-                        <p className="text-sm text-slate-500 mb-1">Phone Number</p>
-                        <p className="font-medium text-slate-900">{profile?.phone || "Not provided"}</p>
+                        <p className="text-sm text-slate-500 mb-1">Role</p>
+                        <p className="font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded inline-block text-xs uppercase tracking-wider">{profile?.role}</p>
                       </div>
                     </div>
                   </div>
@@ -244,62 +204,8 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-
-          {/* Security Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="p-5 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-                <Lock className="h-4 w-4 text-slate-400" />
-                Security
-              </h2>
-            </div>
-            <div className="p-6">
-              <form className="space-y-4 max-w-md" onSubmit={async (e) => {
-                e.preventDefault();
-                const form = e.target as HTMLFormElement;
-                const old_password = (form.elements.namedItem('old_password') as HTMLInputElement).value;
-                const new_password = (form.elements.namedItem('new_password') as HTMLInputElement).value;
-                const confirm_password = (form.elements.namedItem('confirm_password') as HTMLInputElement).value;
-                
-                if (new_password !== confirm_password) {
-                  toastError("New passwords do not match.", "Validation Error");
-                  return;
-                }
-                
-                setIsSaving(true);
-                try {
-                  await profileService.changePassword({ old_password, new_password, confirm_password });
-                  success("Your password has been updated securely.", "Security Update");
-                  form.reset();
-                } catch (err: any) {
-                  toastError(handleApiError(err), "Password Update Failed");
-                } finally {
-                  setIsSaving(false);
-                }
-              }}>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Current Password</label>
-                  <Input name="old_password" type="password" required placeholder="••••••••" disabled={isSaving} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">New Password</label>
-                  <Input name="new_password" type="password" required placeholder="••••••••" disabled={isSaving} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Confirm New Password</label>
-                  <Input name="confirm_password" type="password" required placeholder="••••••••" disabled={isSaving} />
-                </div>
-                <Button type="submit" variant="outline" className="mt-2" disabled={isSaving}>
-                  {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Update Password
-                </Button>
-              </form>
-            </div>
-          </div>
-
         </div>
       </div>
-      </CustomerDashboardLayout>
-    </ProtectedRoute>
+    </AdminLayout>
   );
 }

@@ -23,9 +23,16 @@ export function OrderItemsList({ items }: OrderItemsListProps) {
       <div className="space-y-6">
         {items.map((item) => (
           <div key={item.item_id} className="flex gap-4">
-            {/* Fallback image */}
-            <div className="h-20 w-20 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 border border-slate-200">
-              <span className="text-2xl">📦</span>
+            <div className="h-20 w-20 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 border border-slate-200 overflow-hidden relative">
+              {item.product_image ? (
+                <img 
+                  src={item.product_image} 
+                  alt={item.product_name}
+                  className="w-full h-full object-contain p-1 mix-blend-multiply"
+                />
+              ) : (
+                <span className="text-2xl">📦</span>
+              )}
             </div>
             
             <div className="flex-1 flex flex-col justify-between">

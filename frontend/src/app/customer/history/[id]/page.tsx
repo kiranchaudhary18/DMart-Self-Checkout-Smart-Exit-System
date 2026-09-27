@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { CustomerDashboardLayout } from "@/components/layout/CustomerDashboardLayout";
 import { ordersService } from "@/lib/api/orders";
 import { paymentService } from "@/lib/api/payment";
 import { Order } from "@/types/dashboard";
@@ -70,9 +71,11 @@ export default function OrderDetailsPage() {
   if (isLoading) {
     return (
       <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+        <CustomerDashboardLayout>
         <div className="min-h-screen p-8 flex items-center justify-center">
           <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
         </div>
+        </CustomerDashboardLayout>
       </ProtectedRoute>
     );
   }
@@ -80,6 +83,7 @@ export default function OrderDetailsPage() {
   if (error || !order) {
     return (
       <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+        <CustomerDashboardLayout>
         <div className="max-w-3xl mx-auto px-4 py-12">
           <Button variant="ghost" onClick={() => router.push("/customer/history")} className="mb-6 -ml-4 text-slate-500">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to History
@@ -95,6 +99,7 @@ export default function OrderDetailsPage() {
             )}
           </div>
         </div>
+        </CustomerDashboardLayout>
       </ProtectedRoute>
     );
   }
@@ -105,6 +110,7 @@ export default function OrderDetailsPage() {
 
   return (
     <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+      <CustomerDashboardLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 print:p-0 print:max-w-full">
         {/* Navigation - Hidden on Print */}
         <div className="flex items-center justify-between mb-6 print:hidden">
@@ -296,6 +302,7 @@ export default function OrderDetailsPage() {
           <p>For support, contact support@dmart.com</p>
         </div>
       </div>
+      </CustomerDashboardLayout>
     </ProtectedRoute>
   );
 }

@@ -20,11 +20,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      if (pathname.startsWith('/admin')) {
-        router.push('/admin/login');
-      } else {
-        router.push('/login');
-      }
+      router.push('/login');
     }
   }, [isLoading, isAuthenticated, router, pathname]);
 
@@ -54,11 +50,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
           </p>
           <Button 
             onClick={() => {
-              if (pathname.startsWith('/admin')) {
-                router.push("/admin/login");
-              } else {
-                router.push("/login");
-              }
+              router.push("/login");
             }} 
             variant="outline" 
             className="mt-4 w-full"

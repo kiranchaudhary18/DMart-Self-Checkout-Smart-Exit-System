@@ -17,8 +17,8 @@ export const cartService = {
    * GET /api/cart/
    */
   async getCart(): Promise<CartSummary> {
-    const response = await apiClient.get<CartSummary>("/cart/");
-    return response.data;
+    const response = await apiClient.get("/cart/");
+    return response.data.data;
   },
 
   /**
@@ -26,8 +26,8 @@ export const cartService = {
    * POST /api/cart/items/
    */
   async addToCart(data: AddToCartRequest): Promise<CartSummary> {
-    const response = await apiClient.post<CartSummary>("/cart/items/", data);
-    return response.data;
+    const response = await apiClient.post("/cart/items/", data);
+    return response.data.data;
   },
 
   /**
@@ -35,8 +35,8 @@ export const cartService = {
    * POST /api/cart/items/barcode/
    */
   async addToCartByBarcode(data: AddToCartBarcodeRequest): Promise<CartSummary> {
-    const response = await apiClient.post<CartSummary>("/cart/items/barcode/", data);
-    return response.data;
+    const response = await apiClient.post("/cart/items/barcode/", data);
+    return response.data.data;
   },
 
   /**

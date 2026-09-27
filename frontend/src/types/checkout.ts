@@ -2,6 +2,7 @@ export interface CheckoutPricingItem {
   item_id: number;
   product_id: number;
   product_name: string;
+  product_image?: string;
   barcode: string;
   quantity: number;
   unit_price: string;

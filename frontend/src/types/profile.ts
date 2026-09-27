@@ -3,6 +3,7 @@ export interface UserProfile {
   email: string;
   name: string;
   phone: string;
+  profile_picture?: string | null;
   role: string;
   is_active: boolean;
   created_at: string;
@@ -12,6 +13,7 @@ export interface UserProfile {
 export interface UpdateProfileRequest {
   name?: string;
   phone?: string;
+  profile_picture?: File | null;
 }
 
 export interface ChangePasswordRequest {

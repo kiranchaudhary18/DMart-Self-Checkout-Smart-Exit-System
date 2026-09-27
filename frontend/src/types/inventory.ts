@@ -32,7 +32,7 @@ export interface StockTransaction {
 }
 
 export interface InventoryAdjustmentPayload {
-  product: number;
+  product_id: number;
   quantity: number;
   transaction_type: StockTransactionType;
   reason?: string;

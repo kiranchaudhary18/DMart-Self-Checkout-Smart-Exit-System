@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { CustomerDashboardLayout } from "@/components/layout/CustomerDashboardLayout";
 import { LoyaltySummary, LoyaltyTransaction } from "@/types/loyalty";
 import { loyaltyService } from "@/lib/api/loyalty";
 import { removeTokens } from "@/lib/auth/token";
@@ -44,6 +45,7 @@ export default function LoyaltyPage() {
 
   return (
     <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+      <CustomerDashboardLayout>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         
         {/* Page Header */}
@@ -167,6 +169,7 @@ export default function LoyaltyPage() {
           </div>
         )}
       </div>
+      </CustomerDashboardLayout>
     </ProtectedRoute>
   );
 }

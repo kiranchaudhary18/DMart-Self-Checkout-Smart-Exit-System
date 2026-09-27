@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { CustomerDashboardLayout } from "@/components/layout/CustomerDashboardLayout";
 import { checkoutService } from "@/lib/api/checkout";
 import { CheckoutSummary } from "@/types/checkout";
 import { CheckoutSkeleton } from "@/components/checkout/CheckoutSkeleton";
@@ -88,6 +89,7 @@ export default function CheckoutPage() {
   if (isLoading) {
     return (
       <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+        <CustomerDashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Checkout</h1>
@@ -95,6 +97,7 @@ export default function CheckoutPage() {
           </div>
           <CheckoutSkeleton />
         </div>
+        </CustomerDashboardLayout>
       </ProtectedRoute>
     );
   }
@@ -102,6 +105,7 @@ export default function CheckoutPage() {
   if (error) {
     return (
       <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+        <CustomerDashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 flex flex-col items-center justify-center text-center">
           <div className="p-4 bg-red-50 text-red-600 rounded-full mb-4">
             <AlertCircle className="h-8 w-8" />
@@ -117,6 +121,7 @@ export default function CheckoutPage() {
             <Button onClick={fetchSummary}>Try Again</Button>
           </div>
         </div>
+        </CustomerDashboardLayout>
       </ProtectedRoute>
     );
   }
@@ -124,6 +129,7 @@ export default function CheckoutPage() {
   if (!summary || summary.items.length === 0) {
     return (
       <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+        <CustomerDashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 flex flex-col items-center justify-center text-center">
           <div className="p-6 bg-slate-100 text-slate-400 rounded-full mb-6">
             <ShoppingBag className="h-12 w-12" />
@@ -138,12 +144,14 @@ export default function CheckoutPage() {
             </Button>
           </Link>
         </div>
+        </CustomerDashboardLayout>
       </ProtectedRoute>
     );
   }
 
   return (
     <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+      <CustomerDashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         
         {/* Header */}
@@ -198,6 +206,7 @@ export default function CheckoutPage() {
         </div>
         
       </div>
+      </CustomerDashboardLayout>
     </ProtectedRoute>
   );
 }

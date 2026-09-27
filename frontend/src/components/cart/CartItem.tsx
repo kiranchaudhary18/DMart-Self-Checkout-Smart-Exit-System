@@ -18,11 +18,19 @@ export function CartItem({ item, onUpdateQuantity, onRemove, isUpdating = false 
   return (
     <div className={`flex flex-col sm:flex-row gap-4 p-4 bg-white border border-slate-200 rounded-xl shadow-sm transition-opacity ${isUpdating ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
       
-      {/* Product Placeholder Image since API doesn't return one directly yet */}
+      {/* Product Image */}
       <div className="relative h-24 w-24 sm:h-32 sm:w-32 shrink-0 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
-        <div className="flex flex-col items-center justify-center text-slate-300">
-          <Package className="h-8 w-8 mb-1" />
-        </div>
+        {item.product_image ? (
+          <img 
+            src={item.product_image} 
+            alt={product_name}
+            className="w-full h-full object-contain p-2 mix-blend-multiply"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-slate-300">
+            <Package className="h-8 w-8 mb-1" />
+          </div>
+        )}
       </div>
 
       {/* Product Details */}

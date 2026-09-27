@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ordersService } from "@/lib/api/orders";
 import { Order } from "@/types/dashboard";
-import { CheckCircle2, FileText, ShoppingBag, Loader2, Calendar } from "lucide-react";
+import { CheckCircle2, FileText, ShoppingBag, Loader2, Calendar, Receipt, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 function SuccessContent() {
@@ -63,40 +63,83 @@ function SuccessContent() {
           {error ? (
             <p className="text-center text-slate-500 mb-8">{error}</p>
           ) : order ? (
-            <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-8">
-              <h3 className="font-bold text-slate-900 mb-4 border-b border-slate-200 pb-3">Order Summary</h3>
-              
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Order ID</span>
-                  <span className="font-medium text-slate-900">{order.order_number}</span>
-                </div>
+            <>
+              <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-8">
+                <h3 className="font-bold text-slate-900 mb-4 border-b border-slate-200 pb-3">Order Summary</h3>
                 
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Status</span>
-                  <span className="font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs">
-                    {order.status}
-                  </span>
-                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Order ID</span>
+                    <span className="font-medium text-slate-900">{order.order_number}</span>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Status</span>
+                    <span className="font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs">
+                      {order.status}
+                    </span>
+                  </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 flex items-center gap-1"><Calendar className="h-4 w-4"/> Date</span>
-                  <span className="font-medium text-slate-900">
-                    {new Date(order.created_at).toLocaleString()}
-                  </span>
-                </div>
-                
-                <div className="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center">
-                  <span className="font-bold text-slate-900 text-base">Total Amount Paid</span>
-                  <span className="font-bold text-primary-700 text-lg">₹{order.total_amount}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 flex items-center gap-1"><Calendar className="h-4 w-4"/> Date</span>
+                    <span className="font-medium text-slate-900">
+                      {new Date(order.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  
+                  <div className="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center">
+                    <span className="font-bold text-slate-900 text-base">Total Amount Paid</span>
+                    <span className="font-bold text-primary-700 text-lg">₹{order.total_amount}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+              
+              {order.items && order.items.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+                  <h3 className="font-bold text-slate-900 mb-4 border-b border-slate-200 pb-3 flex items-center gap-2">
+                    <Receipt className="h-5 w-5 text-slate-500" /> 
+                    Receipt Details
+                  </h3>
+                  <div className="space-y-4">
+                    {order.items.map((item: any) => (
+                      <div key={item.id} className="flex gap-4 p-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 rounded-lg">
+                        <div className="h-16 w-16 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 border border-slate-200 overflow-hidden relative">
+                          {item.product_image ? (
+                            <img 
+                              src={item.product_image} 
+                              alt={item.product_name}
+                              className="w-full h-full object-contain p-1 mix-blend-multiply"
+                            />
+                          ) : (
+                            <span className="text-xl">📦</span>
+                          )}
+                        </div>
+                        
+                        <div className="flex-1 flex flex-col justify-center">
+                          <h4 className="font-semibold text-slate-900 text-sm line-clamp-1">{item.product_name}</h4>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-xs font-medium text-slate-500">Qty: {item.quantity} × ₹{item.unit_price}</span>
+                            <span className="font-bold text-slate-900 text-sm">₹{item.total_amount}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           ) : null}
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <Link href="/customer/exit-qr" className="flex-1">
+              <Button className="w-full h-12 bg-green-600 hover:bg-green-700 text-white shadow-sm flex items-center justify-center gap-2">
+                <QrCode className="h-5 w-5" />
+                Show Exit QR
+              </Button>
+            </Link>
+
             <Link href="/customer/history" className="flex-1">
-              <Button className="w-full h-12 bg-primary-600 hover:bg-primary-700 text-white shadow-sm flex items-center justify-center gap-2">
+              <Button variant="outline" className="w-full h-12 border-primary-200 text-primary-700 hover:bg-primary-50 flex items-center justify-center gap-2">
                 <FileText className="h-4 w-4" />
                 View Order History
               </Button>

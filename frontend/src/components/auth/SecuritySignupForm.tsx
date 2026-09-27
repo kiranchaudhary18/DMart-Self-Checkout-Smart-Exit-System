@@ -5,7 +5,9 @@ import { Eye, EyeOff, Loader2, AlertCircle, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
+import { authService } from "@/lib/api/auth"
 
 export function SecuritySignupForm() {
   const [name, setName] = React.useState("")
@@ -17,9 +19,11 @@ export function SecuritySignupForm() {
   
   const [showPassword, setShowPassword] = React.useState(false)
   
-  // Hardcoded to false because backend doesn't support this securely yet
-  const isLoading = false;
+  const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [successMsg, setSuccessMsg] = React.useState<string | null>(null)
+  
+  const router = useRouter()
   
   const validate = () => {
     if (!name.trim()) return "Full Name is required"
@@ -43,6 +47,7 @@ export function SecuritySignupForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccessMsg(null)
     
     const validationError = validate()
     if (validationError) {
@@ -50,8 +55,26 @@ export function SecuritySignupForm() {
       return
     }
 
-    // Explicitly block as per requirements because backend is missing the verification implementation
-    setError("Security registration is currently unavailable. The backend system requires updates to securely validate the access code.")
+    setIsLoading(true)
+    try {
+      await authService.registerSecurity({
+        name,
+        email,
+        phone,
+        password,
+        access_code: accessCode,
+        confirm_password: confirmPassword
+      } as any) // Type cast if confirm_password isn't in SecuritySignupRequest
+      
+      setSuccessMsg("Registration successful! Please wait...")
+      setTimeout(() => {
+        router.push("/login?registered=true")
+      }, 1500)
+    } catch (err: any) {
+      setError(err.message || "Registration failed")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -60,6 +83,13 @@ export function SecuritySignupForm() {
         <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <p>{error}</p>
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="flex items-center gap-2 rounded-md bg-green-50 p-3 text-sm text-green-700">
+          <Info className="h-4 w-4 shrink-0" />
+          <p>{successMsg}</p>
         </div>
       )}
 
