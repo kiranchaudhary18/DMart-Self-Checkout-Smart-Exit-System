@@ -6,11 +6,12 @@ from apps.inventory.models import Inventory
 class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     barcode = serializers.CharField(source='product.barcode', read_only=True)
+    product_image = serializers.ImageField(source='product.image', read_only=True)
     item_total = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
 
     class Meta:
         model = CartItem
-        fields = ('id', 'product', 'product_name', 'barcode', 'quantity', 'unit_price', 'item_total')
+        fields = ('id', 'product', 'product_name', 'barcode', 'product_image', 'quantity', 'unit_price', 'item_total')
         read_only_fields = ('id', 'unit_price', 'item_total')
 
 

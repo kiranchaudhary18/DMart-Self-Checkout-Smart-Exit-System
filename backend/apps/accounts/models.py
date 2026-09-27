@@ -34,6 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
     name = models.CharField(max_length=255, blank=True)
     phone = models.CharField(max_length=20, blank=True)
+    profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
@@ -54,3 +55,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+class SecurityAccessCode(models.Model):
+    class Status(models.TextChoices):
+        UNUSED = 'UNUSED', _('Unused')
+        USED = 'USED', _('Used')
+        INACTIVE = 'INACTIVE', _('Inactive')
+
+    security_name = models.CharField(max_length=255)
+    security_email = models.EmailField(blank=True, null=True)
+    access_code = models.CharField(max_length=512) # Encrypted
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.UNUSED)
+    used_by = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='security_access_code')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    email_sent_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.security_name} - {self.status}"

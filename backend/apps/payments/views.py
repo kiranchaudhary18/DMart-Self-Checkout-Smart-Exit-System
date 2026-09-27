@@ -136,12 +136,11 @@ class VerifyPaymentView(views.APIView):
             order.status = Order.OrderStatus.PAID
             order.save()
             
-            try:
-                LoyaltyService.award_points_for_order(order)
-            except Exception as e:
-                logger.error(f"Failed to award loyalty points for order {order.order_number}: {str(e)}")
-            
-            # (Inventory deduction & Coupon logic happens in a later phase, or async task)
+        # Post transaction tasks
+        try:
+            LoyaltyService.award_points_for_order(order)
+        except Exception as e:
+            logger.error(f"Failed to award loyalty points for order {order.order_number}: {str(e)}")
             
         # Send notifications outside atomic block to ensure failure isolation
         try:

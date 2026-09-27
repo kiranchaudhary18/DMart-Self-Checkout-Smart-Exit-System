@@ -2,6 +2,32 @@ from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+import os
+import cloudinary
+from django.conf import settings
+
+# Force Cloudinary initialization here so that it picks up the correct environment variables
+# even if the Django server hasn't been manually restarted by the user yet.
+if getattr(settings, 'CLOUDINARY', None):
+    cloudinary.config(
+        cloud_name=settings.CLOUDINARY.get('cloud_name'),
+        api_key=settings.CLOUDINARY.get('api_key'),
+        api_secret=settings.CLOUDINARY.get('api_secret'),
+    )
+
+try:
+    import cloudinary_storage.app_settings as cs_settings
+    if hasattr(cs_settings, 'set_credentials'):
+        # In newer versions, set_credentials requires user_settings
+        cs_settings.set_credentials(getattr(settings, 'CLOUDINARY_STORAGE', {}))
+    else:
+        # Manually overwrite the module variables in older versions
+        if getattr(settings, 'CLOUDINARY_STORAGE', None):
+            cs_settings.CLOUD_NAME = settings.CLOUDINARY_STORAGE.get('CLOUD_NAME')
+            cs_settings.API_KEY = settings.CLOUDINARY_STORAGE.get('API_KEY')
+            cs_settings.API_SECRET = settings.CLOUDINARY_STORAGE.get('API_SECRET')
+except Exception as e:
+    print("Could not monkey-patch cloudinary_storage:", e)
 
 def health_check(request):
     return JsonResponse({

@@ -9,9 +9,7 @@ from django.utils import timezone
 from datetime import timedelta
 from apps.orders.models import Order
 from .models import ExitToken
-
-EXIT_TOKEN_EXPIRY_MINUTES = 15
-
+EXIT_TOKEN_EXPIRY_MINUTES = 60 * 24 * 365 # 1 year effectively permanent
 class ExitTokenService:
     @staticmethod
     def _hash_token(raw_token: str) -> str:
@@ -105,43 +103,58 @@ class ExitVerificationService:
             )
             return None, "UNAUTHORIZED"
 
-        # 2. Parse Payload
-        try:
-            payload = json.loads(qr_payload_string)
-            if payload.get("type") != "DMART_EXIT":
-                raise ValueError("Invalid QR Type")
-            token_reference = payload.get("reference")
-            raw_token = payload.get("token")
-            if not token_reference or not raw_token:
-                raise ValueError("Missing QR token data")
-        except (json.JSONDecodeError, ValueError):
-            with transaction.atomic():
-                record = ExitVerification.objects.create(
-                    verified_by=security_user,
-                    result=ExitVerification.VerificationResult.REJECTED,
-                    rejection_reason=ExitVerification.RejectionReason.INVALID_QR_FORMAT
-                )
-                SuspiciousActivityService.record_suspicious_activity(
-                    activity_type=SuspiciousActivity.ActivityType.INVALID_QR,
-                    severity=SuspiciousActivity.Severity.LOW,
-                    user=security_user,
-                    ip_address=ip_address,
-                    user_agent=user_agent,
-                    description="Invalid QR format scanned."
-                )
-            return record, "Invalid QR Format"
-
-        # 3. Hash Raw Token for lookup
-        token_hash = ExitTokenService._hash_token(raw_token)
+        # 2. Check if this is a manual Order Number entry
+        is_manual_entry = qr_payload_string.startswith("DMART-") and "{" not in qr_payload_string
+        
+        token_reference = None
+        raw_token = None
+        
+        if is_manual_entry:
+            # We will look up the token by order number later
+            payload = {}
+        else:
+            # 2b. Parse Payload as JSON
+            try:
+                payload = json.loads(qr_payload_string)
+                if payload.get("type") != "DMART_EXIT":
+                    raise ValueError("Invalid QR Type")
+                token_reference = payload.get("reference")
+                raw_token = payload.get("token")
+                if not token_reference or not raw_token:
+                    raise ValueError("Missing QR token data")
+            except (json.JSONDecodeError, ValueError):
+                with transaction.atomic():
+                    record = ExitVerification.objects.create(
+                        verified_by=security_user,
+                        result=ExitVerification.VerificationResult.REJECTED,
+                        rejection_reason=ExitVerification.RejectionReason.INVALID_QR_FORMAT
+                    )
+                    SuspiciousActivityService.record_suspicious_activity(
+                        activity_type=SuspiciousActivity.ActivityType.INVALID_QR,
+                        severity=SuspiciousActivity.Severity.LOW,
+                        user=security_user,
+                        ip_address=ip_address,
+                        user_agent=user_agent,
+                        description="Invalid QR format scanned."
+                    )
+                return record, "Invalid QR Format"
 
         # 4. Atomic Transaction and Row Locking
         with transaction.atomic():
             try:
-                # Lock the specific ExitToken row to prevent concurrent scans
-                exit_token = ExitToken.objects.select_for_update().get(
-                    token_reference=token_reference, 
-                    token_hash=token_hash
-                )
+                if is_manual_entry:
+                    # Look up by order number
+                    exit_token = ExitToken.objects.select_for_update().get(
+                        order__order_number=qr_payload_string.strip()
+                    )
+                else:
+                    # 3. Hash Raw Token for lookup
+                    token_hash = ExitTokenService._hash_token(raw_token)
+                    # Lock the specific ExitToken row to prevent concurrent scans
+                    exit_token = ExitToken.objects.select_for_update().get(
+                        token_reference=token_reference, 
+                        token_hash=token_hash
+                    )
             except ExitToken.DoesNotExist:
                 record = ExitVerification.objects.create(
                     verified_by=security_user,

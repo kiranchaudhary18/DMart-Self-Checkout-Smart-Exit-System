@@ -2,10 +2,12 @@ from rest_framework import serializers
 from .models import Order, OrderItem, Receipt
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_image = serializers.ImageField(source='product.image', read_only=True)
+
     class Meta:
         model = OrderItem
         fields = (
-            'id', 'product', 'product_name', 'barcode', 'quantity', 
+            'id', 'product', 'product_name', 'barcode', 'product_image', 'quantity', 
             'unit_price', 'gst_percentage', 'discount_amount', 
             'taxable_amount', 'gst_amount', 'total_amount'
         )

@@ -21,6 +21,7 @@ class PricingService:
                 'product_id': item.product.id,
                 'product_name': item.product.name,
                 'barcode': item.product.barcode,
+                'product_image': item.product.image.url if item.product.image else None,
                 'quantity': item.quantity,
                 'unit_price': item.unit_price,
                 'item_subtotal': item_subtotal,

@@ -35,8 +35,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and user.role == User.Role.ADMIN:
-            return Product.objects.select_related('category').all()
-        return Product.objects.select_related('category').filter(is_active=True)
+            return Product.objects.select_related('category', 'inventory').all()
+        return Product.objects.select_related('category', 'inventory').filter(is_active=True)
 
 class BarcodeLookupView(views.APIView):
     permission_classes = [IsAuthenticated]
@@ -46,7 +46,7 @@ class BarcodeLookupView(views.APIView):
         barcode_str = str(barcode)
         
         user = request.user
-        qs = Product.objects.select_related('category').filter(barcode=barcode_str)
+        qs = Product.objects.select_related('category', 'inventory').filter(barcode=barcode_str)
         
         # Only ADMIN can see inactive products via barcode lookup if needed, 
         # but the prompt says: "Only return active products to customers/security users."

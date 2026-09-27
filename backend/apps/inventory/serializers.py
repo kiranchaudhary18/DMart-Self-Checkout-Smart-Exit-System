@@ -2,16 +2,17 @@ from rest_framework import serializers
 from .models import Inventory, StockTransaction
 from apps.products.models import Product
 
+from apps.products.serializers import ProductSerializer
+
 class InventorySerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(source='product.name', read_only=True)
-    barcode = serializers.CharField(source='product.barcode', read_only=True)
+    product = ProductSerializer(read_only=True)
     available_stock = serializers.IntegerField(read_only=True)
     is_low_stock = serializers.SerializerMethodField()
 
     class Meta:
         model = Inventory
         fields = (
-            'product', 'product_name', 'barcode', 'current_stock', 
+            'product', 'current_stock', 
             'reserved_stock', 'available_stock', 'low_stock_threshold', 
             'is_low_stock', 'created_at', 'updated_at'
         )
