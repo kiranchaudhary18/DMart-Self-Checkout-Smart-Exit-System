@@ -14,7 +14,8 @@ export function LoginForm() {
   const [password, setPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
   
-  const { login, isLoading } = useAuth()
+  const { login } = useAuth()
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false)
   const { success, error: toastError } = useToast()
   const [error, setError] = React.useState<string | null>(null)
   
@@ -36,12 +37,15 @@ export function LoginForm() {
     }
 
     try {
+      setIsLoggingIn(true)
       await login({ email, password })
       success("Welcome back! You have successfully logged in.")
+      setIsLoggingIn(false)
     } catch (err: any) {
       const msg = handleApiError(err);
       setError(msg)
       toastError(msg, "Login Failed")
+      setIsLoggingIn(false)
     }
   }
 
@@ -64,7 +68,7 @@ export function LoginForm() {
           placeholder="name@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          disabled={isLoading}
+          disabled={isLoggingIn}
           autoComplete="email"
           aria-invalid={!!error}
         />
@@ -90,7 +94,7 @@ export function LoginForm() {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
+            disabled={isLoggingIn}
             autoComplete="current-password"
             aria-invalid={!!error}
           />
@@ -114,15 +118,15 @@ export function LoginForm() {
           id="remember-me"
           type="checkbox"
           className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-          disabled={isLoading}
+          disabled={isLoggingIn}
         />
         <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-700">
           Remember me
         </label>
       </div>
 
-      <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white" disabled={isLoading}>
-        {isLoading ? (
+      <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white" disabled={isLoggingIn}>
+        {isLoggingIn ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Signing in...
@@ -196,3 +200,4 @@ export function LoginForm() {
     </form>
   )
 }
+
