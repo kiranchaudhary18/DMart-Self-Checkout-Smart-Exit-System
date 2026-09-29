@@ -31,17 +31,22 @@ services:
 
   frontend:
     build: ./frontend
-    command: npm run dev -- -H 0.0.0.0
+    command: npm start
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
     ports:
       - "3000:3000"
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_API_URL=http://16.171.160.82:8000/api
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - NEXT_PUBLIC_API_URL=http://16.171.160.82:8000/api
     depends_on:
       - backend
 
 volumes:
   postgres_data:
+
