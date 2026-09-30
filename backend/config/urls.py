@@ -65,3 +65,8 @@ urlpatterns = [
     path('api/exit-verification/', include('apps.exit_verification.urls')),
     path('api/analytics/', include('apps.analytics.urls')),
 ]
+
+from django.conf.urls.static import static
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
