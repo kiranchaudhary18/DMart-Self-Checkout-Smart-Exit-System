@@ -149,13 +149,13 @@ export default function ExitQRPage() {
                   {/* Multi-pass pagination header */}
                   {passes.length > 1 && (
                     <div className="flex items-center justify-between mb-4 bg-slate-50 rounded-lg p-2 border border-slate-100">
-                      <Button variant="ghost" size="icon" onClick={prevPass} disabled={currentIndex === 0} className="h-8 w-8">
+                      <Button variant="ghost" size="sm" onClick={prevPass} disabled={currentIndex === 0} className="h-8 w-8">
                         <ChevronLeft className="h-5 w-5" />
                       </Button>
                       <span className="text-sm font-medium text-slate-700">
                         Pass {currentIndex + 1} of {passes.length}
                       </span>
-                      <Button variant="ghost" size="icon" onClick={nextPass} disabled={currentIndex === passes.length - 1} className="h-8 w-8">
+                      <Button variant="ghost" size="sm" onClick={nextPass} disabled={currentIndex === passes.length - 1} className="h-8 w-8">
                         <ChevronRight className="h-5 w-5" />
                       </Button>
                     </div>
@@ -268,3 +268,4 @@ export default function ExitQRPage() {
     </ProtectedRoute>
   );
 }
+
