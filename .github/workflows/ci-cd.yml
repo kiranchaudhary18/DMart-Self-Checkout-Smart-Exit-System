@@ -22,3 +22,22 @@ jobs:
 
     - name: Build Backend Docker Image
       run: docker compose build backend
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to AWS EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USERNAME }}
+        key: ${{ secrets.AWS_SSH_KEY }}
+        script: |
+          cd DMart-Self-Checkout-Smart-Exit-System
+          git fetch --all
+          git reset --hard origin/main
+          sudo docker compose up -d --build
+
