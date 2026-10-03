@@ -50,6 +50,8 @@ jobs:
           echo "AWS_STORAGE_BUCKET_NAME=$AWS_STORAGE_BUCKET_NAME" >> .env
           echo "AWS_S3_REGION_NAME=$AWS_S3_REGION_NAME" >> .env
           sudo docker compose up -d --build
+          sudo docker compose logs --tail=50 backend
+
 
 
 
