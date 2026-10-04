@@ -53,7 +53,7 @@ jobs:
           sudo docker compose stop backend
           sudo docker compose rm -f backend
           sudo docker compose up -d --build
-          sudo docker compose exec -T backend python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(email='admin@dmart.com').exists() or User.objects.create_superuser(email='admin@dmart.com', password='admin123')"
+          sudo docker compose exec -T backend python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(email='admin@dmart.com').exists() or User.objects.create_superuser(email='admin@dmart.com', password='admin123', phone='1234567890')"
           sudo docker compose exec -T backend env
           sudo docker compose logs --tail=50 backend
 
