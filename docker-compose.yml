@@ -11,43 +11,13 @@ services:
       POSTGRES_PASSWORD: your_password
     ports:
       - "5432:5432"
-    
-  caddy:
-    image: caddy:latest
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - frontend
-      - backend
-
-volumes:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
     build: ./backend
     command: python manage.py runserver 0.0.0.0:8000
-    
-  caddy:
-    image: caddy:latest
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - frontend
-      - backend
-
-volumes:
       - ./backend:/app
     ports:
       - "8000:8000"
@@ -67,22 +37,7 @@ volumes:
 
   frontend:
     command: npm start
-    
-  caddy:
-    image: caddy:latest
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - frontend
-      - backend
-
-volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
@@ -98,7 +53,6 @@ volumes:
       - NEXT_PUBLIC_API_URL=https://dmartselfcheckout.duckdns.org/api
     depends_on:
       - backend
-
 
   caddy:
     image: caddy:latest
@@ -116,12 +70,5 @@ volumes:
 
 volumes:
   postgres_data:
-
-
-
-
-
-
-
   caddy_data:
   caddy_config:
