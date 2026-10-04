@@ -50,6 +50,8 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
           echo "AWS_STORAGE_BUCKET_NAME=${{ secrets.AWS_STORAGE_BUCKET_NAME }}" >> .env
           echo "AWS_S3_REGION_NAME=${{ secrets.AWS_S3_REGION_NAME }}" >> .env
+          echo "RAZORPAY_KEY_ID=rzp_test_TapSmVJLU8giFu" >> .env
+          echo "RAZORPAY_KEY_SECRET=n4cO50Qaf4Qu6f730GXLyBH2" >> .env
           sudo docker compose stop backend
           sudo docker compose rm -f backend
           sudo docker compose up -d --build
