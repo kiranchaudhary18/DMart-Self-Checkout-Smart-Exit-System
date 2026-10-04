@@ -42,7 +42,7 @@ def dummy_api_view(request, app_name):
     })
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('django-admin/', admin.site.urls),
     
     # Global Health Check
     path('api/health/', health_check, name='health_check'),
