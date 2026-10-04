@@ -53,6 +53,8 @@ services:
 
   caddy:
     image: caddy:latest
+    environment:
+      - FORCE_RESTART=1
     restart: unless-stopped
     ports:
       - "80:80"
