@@ -219,14 +219,29 @@ DMart Admin Team
         """
         
         try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[code_record.security_email],
-                html_message=html_message,
-                fail_silently=False,
-            )
+            if getattr(settings, 'USE_AWS_LAMBDA_EMAIL', False):
+                import boto3
+                import json
+                client = boto3.client('lambda', region_name=getattr(settings, 'AWS_S3_REGION_NAME', 'eu-north-1'))
+                payload = {
+                    'to_email': code_record.security_email,
+                    'subject': subject,
+                    'body': html_message
+                }
+                client.invoke(
+                    FunctionName='DMartEmailSender',
+                    InvocationType='Event',
+                    Payload=json.dumps(payload)
+                )
+            else:
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[code_record.security_email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
             
             code_record.email_sent_at = timezone.now()
             code_record.save()
