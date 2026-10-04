@@ -35,15 +35,30 @@ def send_notification(customer, notification_type, subject, template_name, conte
         html_message = render_to_string(template_name, context)
         plain_message = strip_tags(html_message)
         
-        # Send Email
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[customer.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
+        # Send Email via Lambda or fallback to Django
+        if getattr(settings, 'USE_AWS_LAMBDA_EMAIL', False):
+            import boto3
+            import json
+            client = boto3.client('lambda', region_name=getattr(settings, 'AWS_S3_REGION_NAME', 'eu-north-1'))
+            payload = {
+                'to_email': customer.email,
+                'subject': subject,
+                'body': html_message
+            }
+            client.invoke(
+                FunctionName='DMartEmailSender',
+                InvocationType='Event',
+                Payload=json.dumps(payload)
+            )
+        else:
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[customer.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
         
         # Update to SENT
         notification.status = Notification.Status.SENT

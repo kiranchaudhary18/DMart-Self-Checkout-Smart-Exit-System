@@ -305,3 +305,6 @@ LOGGING = {
 
 
 
+
+# Lambda Configuration
+USE_AWS_LAMBDA_EMAIL = True
