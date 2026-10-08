@@ -79,7 +79,20 @@ def force_admin(request):
     
     User = get_user_model()
     
-    # DELETE ALL USERS (Except superusers to prevent complete lockout if something goes wrong, but we'll recreate anyway)
+    # DELETE EVERYTHING DEPENDING ON USERS FIRST TO AVOID PROTECTED ERRORS
+    from apps.orders.models import Order
+    from apps.cart.models import Cart
+    from apps.exit_verification.models import ExitToken
+    from apps.loyalty.models import LoyaltyPoint
+    from apps.analytics.models import StoreFeedback
+    
+    Order.objects.all().delete()
+    Cart.objects.all().delete()
+    ExitToken.objects.all().delete()
+    LoyaltyPoint.objects.all().delete()
+    StoreFeedback.objects.all().delete()
+    
+    # NOW DELETE ALL USERS
     User.objects.all().delete()
     
     # RECREATE ADMIN
