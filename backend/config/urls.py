@@ -79,6 +79,10 @@ def force_admin(request):
     u = User.objects.create_superuser(email='admin@dmart.com', password='admin123', name='DMart Admin', phone='0000000001', role='ADMIN')
     u.is_active = True
     u.save()
-    return JsonResponse({'status': 'Admin account completely recreated on live with password admin123 and activated'})
+    User.objects.filter(email='security@dmart.com').delete()
+    s = User.objects.create_user(email='security@dmart.com', password='Security@123', name='Security Guard', phone='0000000002', role='SECURITY')
+    s.is_active = True
+    s.save()
+    return JsonResponse({'status': 'Admin and Security accounts created and activated'})
 
 urlpatterns.append(path('api/force-admin/', force_admin))
