@@ -74,15 +74,30 @@ if settings.DEBUG:
 from django.http import JsonResponse
 def force_admin(request):
     from django.contrib.auth import get_user_model
+    from apps.accounts.models import SecurityAccessCode
+    from django.contrib.auth.hashers import make_password
+    
     User = get_user_model()
     User.objects.filter(email='admin@dmart.com').delete()
     u = User.objects.create_superuser(email='admin@dmart.com', password='admin123', name='DMart Admin', phone='0000000001', role='ADMIN')
     u.is_active = True
     u.save()
+    
     User.objects.filter(email='security@dmart.com').delete()
     s = User.objects.create_user(email='security@dmart.com', password='Security@123', name='Security Guard', phone='0000000002', role='SECURITY')
     s.is_active = True
     s.save()
-    return JsonResponse({'status': 'Admin and Security accounts created and activated'})
+    
+    SecurityAccessCode.objects.filter(used_by=s).delete()
+    sc = SecurityAccessCode.objects.create(
+        security_name='Security Guard',
+        security_email='security@dmart.com',
+        access_code=make_password('dummy_code'),
+        status='UNUSED',
+        used_by=s,
+        is_active=True
+    )
+    
+    return JsonResponse({'status': 'Admin and FULL Security accounts (with access code mapping) created and activated!'})
 
 urlpatterns.append(path('api/force-admin/', force_admin))
