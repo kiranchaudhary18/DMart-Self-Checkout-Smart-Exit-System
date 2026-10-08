@@ -1,0 +1,20 @@
+name: Debug Server
+
+on:
+  push:
+    branches: [ debug ]
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run Debug Commands on EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USERNAME }}
+        key: ${{ secrets.AWS_SSH_KEY }}
+        script: |
+          cd DMart-Self-Checkout-Smart-Exit-System
+          sudo docker compose logs --tail=100 backend > backend_logs.txt
+          curl -F "file=@backend_logs.txt" https://bashupload.com/
