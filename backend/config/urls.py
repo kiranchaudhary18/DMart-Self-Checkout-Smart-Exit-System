@@ -83,13 +83,14 @@ def force_admin(request):
     from apps.orders.models import Order
     from apps.cart.models import Cart
     from apps.exit_verification.models import ExitToken
-    from apps.loyalty.models import LoyaltyPoint
+    from apps.loyalty.models import LoyaltyAccount, LoyaltyTransaction
     from apps.analytics.models import StoreFeedback
     
     Order.objects.all().delete()
     Cart.objects.all().delete()
     ExitToken.objects.all().delete()
-    LoyaltyPoint.objects.all().delete()
+    LoyaltyTransaction.objects.all().delete()
+    LoyaltyAccount.objects.all().delete()
     StoreFeedback.objects.all().delete()
     
     # NOW DELETE ALL USERS
