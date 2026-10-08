@@ -75,13 +75,10 @@ from django.http import JsonResponse
 def force_admin(request):
     from django.contrib.auth import get_user_model
     User = get_user_model()
-    u = User.objects.filter(email='admin@dmart.com').first()
-    if u:
-        u.set_password('admin123')
-        u.save()
-        return JsonResponse({'status': 'Admin password reset to admin123'})
-    else:
-        User.objects.create_superuser(email='admin@dmart.com', password='admin123')
-        return JsonResponse({'status': 'Admin created with admin123'})
+    User.objects.filter(email='admin@dmart.com').delete()
+    u = User.objects.create_superuser(email='admin@dmart.com', password='admin123', name='DMart Admin', phone='0000000001', role='ADMIN')
+    u.is_active = True
+    u.save()
+    return JsonResponse({'status': 'Admin account completely recreated on live with password admin123 and activated'})
 
 urlpatterns.append(path('api/force-admin/', force_admin))
