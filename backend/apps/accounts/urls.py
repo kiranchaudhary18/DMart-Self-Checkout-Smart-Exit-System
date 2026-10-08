@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    AdminCustomerListView,
     RegistrationView,
     CustomTokenObtainPairView,
     CurrentUserView,
@@ -30,4 +31,5 @@ urlpatterns = [
     path('test/customer/', TestCustomerView.as_view(), name='test_customer'),
     path('test/security/', TestSecurityView.as_view(), name='test_security'),
     path('test/admin/', TestAdminView.as_view(), name='test_admin'),
+    path('admin/customers/', AdminCustomerListView.as_view(), name='admin_customers'),
 ]

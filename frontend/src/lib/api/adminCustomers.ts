@@ -7,28 +7,12 @@ export interface AdminCustomer extends User {
   loyalty_points?: number;
 }
 
-/**
- * Fetch all customers for admin.
- * NOTE: The Django backend currently does not implement a dedicated 
- * admin customer list endpoint.
- */
 export const getAdminCustomers = async (params?: any): Promise<{ results: AdminCustomer[], count: number }> => {
-  throw {
-    response: {
-      status: 404,
-      data: { message: "Admin Customers endpoint is not implemented on the backend yet." }
-    }
-  };
+  const response = await apiClient.get('/auth/admin/customers/', { params });
+  return response.data;
 };
 
-/**
- * Fetch a specific customer detail for admin.
- */
 export const getAdminCustomerDetail = async (id: string | number): Promise<AdminCustomer> => {
-  throw {
-    response: {
-      status: 404,
-      data: { message: "Admin Customer Detail endpoint is not implemented on the backend yet." }
-    }
-  };
+  const response = await apiClient.get(`/auth/admin/customers/${id}/`);
+  return response.data;
 };

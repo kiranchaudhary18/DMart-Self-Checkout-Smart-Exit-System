@@ -278,3 +278,12 @@ class SecurityRegistrationView(generics.CreateAPIView):
         }
         
         return Response(get_success_response("Security user registered successfully.", token_data), status=status.HTTP_201_CREATED)
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+class AdminCustomerListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+    serializer_class = UserSerializer
+    def get_queryset(self):
+        return User.objects.filter(role='CUSTOMER').order_by('-date_joined')
