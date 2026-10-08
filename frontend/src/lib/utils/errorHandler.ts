@@ -17,6 +17,11 @@ export function handleApiError(error: any): string {
             return data.message;
         }
     }
+    
+    // DRF / SimpleJWT returns 'detail'
+    if (data && typeof data.detail === "string" && data.detail.trim() !== "") {
+        return data.detail;
+    }
 
     // Fallback to standard HTTP status mapping
     switch (status) {
