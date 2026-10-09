@@ -17,5 +17,6 @@ jobs:
         script: |
           cd DMart-Self-Checkout-Smart-Exit-System
           sudo docker compose up -d backend
-          sudo docker ps -a > ps2.txt
+          sudo docker compose logs --tail=100 backend -a > ps2.txt
           curl -X POST -H "Content-Type: text/plain" --data-binary "@ps2.txt" https://webhook.site/671b44de-2301-461d-bc33-bcf7eae6a307
+
