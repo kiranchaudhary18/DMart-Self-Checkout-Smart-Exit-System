@@ -143,9 +143,9 @@ class ExitVerificationService:
         with transaction.atomic():
             try:
                 if is_manual_entry:
-                    # Look up by order number
+                    # Look up by token reference (manual entry)
                     exit_token = ExitToken.objects.select_for_update().get(
-                        order__order_number=qr_payload_string.strip()
+                        token_reference=qr_payload_string.strip()
                     )
                 else:
                     # 3. Hash Raw Token for lookup
@@ -384,3 +384,4 @@ class SuspiciousActivityService:
                     ip_address=ip_address,
                     description=f"Detected {count} suspicious activities within 10 minutes."
                 )
+
