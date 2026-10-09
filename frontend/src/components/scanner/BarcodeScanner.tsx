@@ -34,6 +34,10 @@ export function BarcodeScanner({ onScan, onManualEntryRequested }: BarcodeScanne
       setScannedCode(null);
       
       try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("HTTPS_REQUIRED");
+        }
+        
         // Prompt for camera permissions explicitly first if we haven't already
         dummyStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         if (!isMounted) return;
@@ -45,7 +49,7 @@ export function BarcodeScanner({ onScan, onManualEntryRequested }: BarcodeScanne
         const reader = new BrowserMultiFormatReader();
         
         if (videoRef.current && isMounted) {
-          const scannerControls = await reader.decodeFromVideoElement(videoRef.current, (result: Result | undefined, err, controls) => {
+          const scannerControls = await reader.decodeFromVideoDevice(undefined, videoRef.current, (result: Result | undefined, err, controls) => {
             if (!isMounted) {
               controls.stop();
               return;
@@ -83,7 +87,10 @@ export function BarcodeScanner({ onScan, onManualEntryRequested }: BarcodeScanne
       } catch (err: any) {
         if (!isMounted) return;
         console.error("Camera access error:", err);
-        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+        if (err.message === "HTTPS_REQUIRED") {
+          setError("Camera requires a secure HTTPS connection. Please ensure you are not using HTTP or port 3000 directly.");
+          setHasPermission(false);
+        } else if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
           setHasPermission(false);
         } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
           setError("No camera found on this device.");
@@ -228,3 +235,6 @@ export function BarcodeScanner({ onScan, onManualEntryRequested }: BarcodeScanne
     </div>
   );
 }
+
+
+

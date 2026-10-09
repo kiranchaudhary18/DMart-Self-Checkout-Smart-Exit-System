@@ -76,7 +76,7 @@ export default function SecurityScanPage() {
   }, []);
 
   const startScanning = () => {
-    if (!selectedDeviceId || !videoRef.current || !codeReaderRef.current) return;
+    if (!videoRef.current || !codeReaderRef.current) return;
     
     setScanError(null);
     setIsScanning(true);
@@ -84,7 +84,7 @@ export default function SecurityScanPage() {
     setScannedData(null);
     
     codeReaderRef.current.decodeFromVideoDevice(
-      selectedDeviceId, 
+      selectedDeviceId || undefined, 
       videoRef.current, 
       (result, err) => {
         if (result) {
@@ -509,3 +509,4 @@ export default function SecurityScanPage() {
     </ProtectedRoute>
   );
 }
+
